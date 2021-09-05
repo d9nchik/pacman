@@ -1,13 +1,14 @@
 import pygame.mixer
 
-from src.enemies import *
+from src.enemies import Blinky, Inky, Pinky, Clyde
+from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.player import Player
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
 
-# Define some colors
+# colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -19,6 +20,8 @@ MAX_LIFE_LEVEL = 3
 
 # TODO: add table of records
 # TODO: change resolution
+# TODO: add rage
+# FIXME: refactor
 
 class Game(object):
     def __init__(self):
@@ -26,67 +29,60 @@ class Game(object):
         self.about = False
         self.game_over = True
         self.win = False
-        self.grid = generate_environment()
         self.life = MAX_LIFE_LEVEL
-        # Create the variable for the score
-        self.score = 0
-        self.level = 1
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None, 35)
-        # Create the menu of the game
+
         self.menu = Menu(("Start", "Rules", "Exit"), font_color=WHITE, font_size=60)
-        # Create the player
+
+        # load sounds
+        self.pacman_sound = pygame.mixer.Sound("./src/sounds/pacman_sound.ogg")
+        self.game_over_sound = pygame.mixer.Sound("./src/sounds/game_over_sound.ogg")
+        self.win_sound = pygame.mixer.Sound('./src/sounds/win.ogg')
+        self.hurt = pygame.mixer.Sound('./src/sounds/hurt.wav')
+        self.upgrade = pygame.mixer.Sound('./src/sounds/upgrade.wav')
+
+        self.score = 0
+        self.level = 1
+        self.grid = generate_environment()
+
         self.player = Player(self.grid)
-        # Create the blocks that will set the paths where the player can go
+        # paths blocks
         self.empty_blocks = pygame.sprite.Group()
         self.non_empty_blocks = pygame.sprite.Group()
-        # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
-        # Set the environment:
+
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
                 if item == 0:
                     self.empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 20, 20))
                 else:
                     self.non_empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 16, 16))
+                    self.dots_group.add(Ellipse(j * 32 + 12, i * 32 + 12, WHITE, 8, 8))
 
-        # Create the enemies
         self.enemies = pygame.sprite.Group()
         self.enemies.add(Blinky(self.grid))
         self.enemies.add(Clyde(self.grid))
         self.enemies.add(Inky(self.grid))
         self.enemies.add(Pinky(self.grid))
 
-        # Add the dots inside the game
-        for i, row in enumerate(self.grid):
-            for j, item in enumerate(row):
-                if item != 0:
-                    self.dots_group.add(Ellipse(j * 32 + 12, i * 32 + 12, WHITE, 8, 8))
-
-        # Load the sound effects
-        self.pacman_sound = pygame.mixer.Sound("./src/sounds/pacman_sound.ogg")
-        self.game_over_sound = pygame.mixer.Sound("./src/sounds/game_over_sound.ogg")
-        self.win_sound = pygame.mixer.Sound('./src/sounds/win.ogg')
-        self.hurt = pygame.mixer.Sound('./src/sounds/hurt.wav')
-
     def process_events(self):
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.QUIT:  # If user clicked close
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 return True
             self.menu.event_handler(event)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     if self.game_over and not self.about:
                         if self.menu.state == 0:
-                            # ---- START ------
+                            # start
                             self.__init__()
                             self.game_over = False
                         elif self.menu.state == 1:
-                            # --- Rules ------
+                            # rules
                             self.about = True
                         elif self.menu.state == 2:
-                            # --- EXIT -------
-                            # User clicked exit
+                            # exit
                             return True
 
                 elif event.key == pygame.K_RIGHT:
@@ -117,18 +113,13 @@ class Game(object):
                 elif event.key == pygame.K_DOWN:
                     self.player.stop_move_down()
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.player.explosion = True
-
         return False
 
     def run_logic(self):
         if not self.game_over:
             self.player.update(self.empty_blocks)
             block_hit_list = pygame.sprite.spritecollide(self.player, self.dots_group, True)
-            # When the block_hit_list contains one sprite that means that player hit a dot
             if len(block_hit_list) > 0:
-                # Here will be the sound effect
                 self.pacman_sound.play()
                 self.score += len(block_hit_list)
             if self.life != 1:
@@ -145,6 +136,7 @@ class Game(object):
             self.enemies.update()
             # win effect
             if len(self.dots_group) == 0:
+                self.upgrade.play()
                 self.increase_level()
 
             if self.level == MAX_LEVEL + 1:
@@ -159,40 +151,18 @@ class Game(object):
         self.hurt.play()
 
     def increase_level(self):
-        self.level += 1
-        self.grid = generate_environment()
-        # Create the player
-        self.player = Player(self.grid)
-        # Create the blocks that will set the paths where the player can go
-        self.empty_blocks = pygame.sprite.Group()
-        self.non_empty_blocks = pygame.sprite.Group()
-        # Create a group for the dots on the screen
-        self.dots_group = pygame.sprite.Group()
-        # Set the environment:
-        for i, row in enumerate(self.grid):
-            for j, item in enumerate(row):
-                if item == 0:
-                    self.empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 20, 20))
-                else:
-                    self.non_empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 16, 16))
-
-        # Create the enemies
-        self.enemies = pygame.sprite.Group()
-        self.enemies.add(Blinky(self.grid))
-        self.enemies.add(Clyde(self.grid))
-        self.enemies.add(Inky(self.grid))
-        self.enemies.add(Pinky(self.grid))
-
-        # Add the dots inside the game
-        for i, row in enumerate(self.grid):
-            for j, item in enumerate(row):
-                if item != 0:
-                    self.dots_group.add(Ellipse(j * 32 + 12, i * 32 + 12, WHITE, 8, 8))
+        level = self.level + 1
+        score = self.score
+        life = self.life
+        self.__init__()
+        self.level = level
+        self.life = life
+        self.score = score
+        self.game_over = False
 
     def display_frame(self, screen):
-        # First, clear the screen to white. Don't put other drawing commands
+        # clear the screen
         screen.fill(BLACK)
-        # --- Drawing code should go here
         if self.game_over:
             if self.score:
                 message = 'You win)' if self.win else 'You lose('
@@ -218,19 +188,18 @@ class Game(object):
             # Put the text on the screen
             screen.blit(text, [120, 20])
 
-        # --- Go ahead and update the screen with what we've drawn.
+        # update the screen with new draw
         pygame.display.flip()
 
     def display_message(self, screen, message, color=(255, 0, 0)):
         label = self.font.render(message, True, color)
-        # Get the width and height of the label
         width = label.get_width()
         height = label.get_height()
-        # Determine the position of the label
-        posX = (SCREEN_WIDTH / 2) - (width / 2)
-        posY = (SCREEN_HEIGHT / 2) - (height / 2)
-        # Draw the label onto the screen
-        screen.blit(label, (posX, posY))
+        # get the position of the label
+        pos_x = (SCREEN_WIDTH / 2) - (width / 2)
+        pos_y = (SCREEN_HEIGHT / 2) - (height / 2)
+        # draw label
+        screen.blit(label, (pos_x, pos_y))
 
 
 class Menu(object):
@@ -252,12 +221,12 @@ class Menu(object):
             width = label.get_width()
             height = label.get_height()
 
-            posX = (SCREEN_WIDTH / 2) - (width / 2)
+            pos_x = (SCREEN_WIDTH / 2) - (width / 2)
             # t_h: total height of text block
             t_h = len(self.items) * height
-            posY = (SCREEN_HEIGHT / 2) - (t_h / 2) + (index * height)
+            pos_y = (SCREEN_HEIGHT / 2) - (t_h / 2) + (index * height)
 
-            screen.blit(label, (posX, posY))
+            screen.blit(label, (pos_x, pos_y))
 
     def event_handler(self, event):
         if event.type == pygame.KEYDOWN:

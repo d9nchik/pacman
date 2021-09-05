@@ -5,10 +5,10 @@ from src.entity import Entity
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
 
-# Define some colors
 BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 
+
+# FIXME: refactor
 
 class Player(pygame.sprite.Sprite, Entity):
     change_x = 0
@@ -17,22 +17,21 @@ class Player(pygame.sprite.Sprite, Entity):
     game_over = False
 
     def __init__(self, grid):
-
-        # Call the parent class (sprite) constructor
         pygame.sprite.Sprite.__init__(self)
+
         Entity.__init__(self, grid)
         self.image = pygame.image.load("./src/sprites/player.png").convert()
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.topleft = self.get_random_start_position()
-        # Load image which will be for the animation
+
         img = pygame.image.load("./src/sprites/walk.png").convert()
-        # Create the animations objects
+
         self.move_right_animation = Animation(img, 32, 32)
         self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 32, 32)
         self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 32, 32)
         self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 32, 32)
-        # Load explosion image
+
         img = pygame.image.load("./src/sprites/explosion.png").convert()
         self.explosion_animation = Animation(img, 30, 30)
 
@@ -49,14 +48,7 @@ class Player(pygame.sprite.Sprite, Entity):
             self.rect.x += self.change_x
             self.rect.y += self.change_y
 
-            # This will stop the user for go up or down when it is inside of the box
-
-            # for block in pygame.sprite.spritecollide(self, horizontal_blocks, False):
-            #     self.rect.centery = block.rect.centery
-            #     self.change_y = 0
-            # for block in pygame.sprite.spritecollide(self, vertical_blocks, False):
-            #     self.rect.centerx = block.rect.centerx
-            #     self.change_x = 0
+            # This will stop user from moving through walls
             if len(pygame.sprite.spritecollide(self, empty_blocks, False)) > 0:
                 self.rect.centerx -= self.change_x
                 self.rect.centery -= self.change_y
@@ -98,8 +90,6 @@ class Player(pygame.sprite.Sprite, Entity):
         self.change_y = 3
 
     def stop_move_right(self):
-        if self.change_x != 0:
-            self.image = self.image
         self.change_x = 0
 
     def stop_move_left(self):
@@ -145,7 +135,6 @@ class Animation(object):
         image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
         # Assuming black works as the transparent color
         image.set_colorkey((0, 0, 0))
-        # Return the image
         return image
 
     def get_current_image(self):
@@ -155,13 +144,12 @@ class Animation(object):
         return len(self.image_list)
 
     def update(self, fps=30):
-        if self.clock == 30:
+        if self.clock == fps:
             self.clock = 1
         else:
             self.clock += 1
 
-        if self.clock in range(1, 30, 8):
-            # Increase index
+        if self.clock in range(1, fps, 8):
             self.index += 1
             if self.index == len(self.image_list):
                 self.index = 0

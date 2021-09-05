@@ -7,51 +7,20 @@ from src.entity import Entity
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
 
-# Define some colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-
-
-class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y, color, width, height):
-        # Call the parent class (Sprite) constructor
-        pygame.sprite.Sprite.__init__(self)
-        # Set the background color and set it to be transparent
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-
-
-class Ellipse(pygame.sprite.Sprite):
-    def __init__(self, x, y, color, width, height):
-        # Call the parent class (Sprite) constructor
-        pygame.sprite.Sprite.__init__(self)
-        # Set the background color and set it to be transparent
-        self.image = pygame.Surface([width, height])
-        self.image.fill(BLACK)
-        self.image.set_colorkey(BLACK)
-        # Draw the ellipse
-        pygame.draw.ellipse(self.image, color, [0, 0, width, height])
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-
 
 class Spirit(pygame.sprite.Sprite, Entity):
     def __init__(self, image_path, grid):
-        # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
         Entity.__init__(self, grid)
-        # Set the direction of the slime
+
         self.change_x = 0
         self.change_y = 0
-        # Load image
+        # load image
         self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = self.get_random_start_position()
         self.change_direction()
-        # compute intersection position
+
         self.intersection_position = self.get_intersection_position()
 
     def update(self):
