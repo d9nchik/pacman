@@ -14,6 +14,7 @@ BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 
 MAX_LEVEL = 3
+MAX_LIFE_LEVEL = 3
 
 
 # TODO: add table of records
@@ -26,6 +27,7 @@ class Game(object):
         self.game_over = True
         self.win = False
         self.grid = generate_environment()
+        self.life = MAX_LIFE_LEVEL
         # Create the variable for the score
         self.score = 0
         self.level = 1
@@ -65,6 +67,7 @@ class Game(object):
         self.pacman_sound = pygame.mixer.Sound("./src/sounds/pacman_sound.ogg")
         self.game_over_sound = pygame.mixer.Sound("./src/sounds/game_over_sound.ogg")
         self.win_sound = pygame.mixer.Sound('./src/sounds/win.ogg')
+        self.hurt = pygame.mixer.Sound('./src/sounds/hurt.wav')
 
     def process_events(self):
         for event in pygame.event.get():  # User did something
@@ -127,11 +130,17 @@ class Game(object):
             if len(block_hit_list) > 0:
                 # Here will be the sound effect
                 self.pacman_sound.play()
-                self.score += 1
-            block_hit_list = pygame.sprite.spritecollide(self.player, self.enemies, True)
-            if len(block_hit_list) > 0:
-                self.player.explosion = True
-                self.game_over_sound.play()
+                self.score += len(block_hit_list)
+            if self.life != 1:
+                block_hit_list = pygame.sprite.spritecollide(self.player, self.enemies, False)
+                if len(block_hit_list) > 0:
+                    self.decrease_life_level()
+            else:
+                block_hit_list = pygame.sprite.spritecollide(self.player, self.enemies, True)
+                if len(block_hit_list) > 0:
+                    self.life -= 1
+                    self.player.explosion = True
+                    self.game_over_sound.play()
             self.game_over = self.player.game_over
             self.enemies.update()
             # win effect
@@ -143,6 +152,11 @@ class Game(object):
                 self.about = False
                 self.win = True
                 self.win_sound.play()
+
+    def decrease_life_level(self):
+        self.life -= 1
+        self.player = Player(self.grid)
+        self.hurt.play()
 
     def increase_level(self):
         self.level += 1
@@ -199,7 +213,8 @@ class Game(object):
             self.enemies.draw(screen)
             screen.blit(self.player.image, self.player.rect)
             # Render the text for the score
-            text = self.font.render("Score: {}; Level: {}".format(self.score, self.level), True, WHITE)
+            text = self.font.render("Score: {}; Level: {}: HP: {}".format(self.score, self.level, self.life), True,
+                                    WHITE)
             # Put the text on the screen
             screen.blit(text, [120, 20])
 
