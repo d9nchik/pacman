@@ -2,11 +2,7 @@ import random
 
 import pygame
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+from src.settings import *
 
 
 def apply_direction_to_grid(grid, x, y, direction):
@@ -53,10 +49,15 @@ def draw_environment(screen, grid):
         for j, item in enumerate(row):
             if item != 0:
                 if grid[(i - 1) % dimension_x][j] == 0:
-                    pygame.draw.line(screen, GREEN, [j * 32, i * 32], [j * 32 + 32, i * 32], 3)
+                    pygame.draw.line(screen, GREEN, [j * BLOCK_SIZE, i * BLOCK_SIZE],
+                                     [(j + 1) * BLOCK_SIZE, i * BLOCK_SIZE], 3)
                 if grid[(i + 1) % dimension_x][j] == 0:
-                    pygame.draw.line(screen, GREEN, [j * 32, i * 32 + 32], [j * 32 + 32, i * 32 + 32], 3)
+                    pygame.draw.line(screen, GREEN, [j * BLOCK_SIZE, (i + 1) * BLOCK_SIZE],
+                                     [(j + 1) * BLOCK_SIZE, (i + 1) * BLOCK_SIZE],
+                                     3)
                 if grid[i][(j - 1) % dimension_y] == 0:
-                    pygame.draw.line(screen, GREEN, [j * 32, i * 32], [j * 32, i * 32 + 32], 3)
+                    pygame.draw.line(screen, GREEN, [j * BLOCK_SIZE, i * BLOCK_SIZE],
+                                     [j * BLOCK_SIZE, (i + 1) * BLOCK_SIZE], 3)
                 if grid[i][(j + 1) % dimension_y] == 0:
-                    pygame.draw.line(screen, GREEN, [j * 32 + 32, i * 32], [j * 32 + 32, i * 32 + 32], 3)
+                    pygame.draw.line(screen, GREEN, [(j + 1) * BLOCK_SIZE, i * BLOCK_SIZE],
+                                     [(j + 1) * BLOCK_SIZE, (i + 1) * BLOCK_SIZE], 3)

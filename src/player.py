@@ -1,11 +1,7 @@
 import pygame
 
 from src.entity import Entity
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 576
-
-BLACK = (0, 0, 0)
+from src.settings import *
 
 
 # FIXME: refactor
@@ -27,10 +23,10 @@ class Player(pygame.sprite.Sprite, Entity):
 
         img = pygame.image.load("./src/sprites/walk.png").convert()
 
-        self.move_right_animation = Animation(img, 32, 32)
-        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), 32, 32)
-        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), 32, 32)
-        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), 32, 32)
+        self.move_right_animation = Animation(img, BLOCK_SIZE, BLOCK_SIZE)
+        self.move_left_animation = Animation(pygame.transform.flip(img, True, False), BLOCK_SIZE, BLOCK_SIZE)
+        self.move_up_animation = Animation(pygame.transform.rotate(img, 90), BLOCK_SIZE, BLOCK_SIZE)
+        self.move_down_animation = Animation(pygame.transform.rotate(img, 270), BLOCK_SIZE, BLOCK_SIZE)
 
         img = pygame.image.load("./src/sprites/explosion.png").convert()
         self.explosion_animation = Animation(img, 30, 30)

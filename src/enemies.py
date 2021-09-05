@@ -3,9 +3,7 @@ import random
 import pygame
 
 from src.entity import Entity
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 576
+from src.settings import *
 
 
 class Spirit(pygame.sprite.Sprite, Entity):
@@ -57,8 +55,8 @@ class Spirit(pygame.sprite.Sprite, Entity):
     def get_available_directions(self):
         dimension_x = len(self.grid)
         dimension_y = len(self.grid[0])
-        j = self.rect.topleft[0] // 32
-        i = self.rect.topleft[1] // 32
+        j = self.rect.topleft[0] // BLOCK_SIZE
+        i = self.rect.topleft[1] // BLOCK_SIZE
         directions = []
         if self.grid[(i + 1) % dimension_x][j] != 0:
             directions.append('down')
@@ -75,7 +73,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
                 if item != 0 and not is_tube(get_cell_neighbours(self.grid, i, j)):
-                    items.add((j * 32, i * 32))
+                    items.add((j * BLOCK_SIZE, i * BLOCK_SIZE))
 
         return items
 

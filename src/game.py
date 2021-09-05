@@ -5,18 +5,7 @@ from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.menu import Menu
 from src.player import Player
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 576
-
-# colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-RED = (255, 0, 0)
-
-MAX_LEVEL = 3
-MAX_LIFE_LEVEL = 3
+from src.settings import *
 
 
 # TODO: add table of records
@@ -55,10 +44,14 @@ class Game(object):
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
                 if item == 0:
-                    self.empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 20, 20))
+                    self.empty_blocks.add(
+                        Block(j * BLOCK_SIZE + 8, i * BLOCK_SIZE + 8, BLACK, HALF_BLOCK_SIZE + 4, HALF_BLOCK_SIZE + 4))
                 else:
-                    self.non_empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 16, 16))
-                    self.dots_group.add(Ellipse(j * 32 + 12, i * 32 + 12, WHITE, 8, 8))
+                    self.non_empty_blocks.add(
+                        Block(j * BLOCK_SIZE + QUARTER_BLOCK_SIZE, i * BLOCK_SIZE + QUARTER_BLOCK_SIZE, BLACK,
+                              HALF_BLOCK_SIZE, HALF_BLOCK_SIZE))
+                    self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
+                                                QUARTER_BLOCK_SIZE))
 
         self.enemies = pygame.sprite.Group()
         self.enemies.add(Blinky(self.grid))
@@ -191,7 +184,7 @@ class Game(object):
         # update the screen with new draw
         pygame.display.flip()
 
-    def display_message(self, screen, message, color=(255, 0, 0)):
+    def display_message(self, screen, message, color=RED):
         label = self.font.render(message, True, color)
         width = label.get_width()
         height = label.get_height()

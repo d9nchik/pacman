@@ -2,7 +2,7 @@ import random
 
 import pygame
 
-BLACK = (0, 0, 0)
+from src.settings import BLACK, BLOCK_SIZE
 
 
 class Block(pygame.sprite.Sprite):
@@ -41,5 +41,5 @@ class Entity:
             x = random.randint(0, dimension_x - 1)
             y = random.randint(0, dimension_y - 1)
             if self.grid[x][y] != 0:
-                position = (y * 32, x * 32)
+                position = (y * BLOCK_SIZE, x * BLOCK_SIZE)
         return position
