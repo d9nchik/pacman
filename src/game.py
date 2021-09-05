@@ -24,6 +24,7 @@ class Game(object):
         self.grid = environment()
         # Create the variable for the score
         self.score = 0
+        self.level = 1
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None, 35)
         # Create the menu of the game
@@ -131,10 +132,44 @@ class Game(object):
             self.enemies.update()
             # win effect
             if len(self.dots_group) == 0:
+                self.increase_level()
+
+            if self.level == 4:
                 self.game_over = True
                 self.about = False
                 self.win = True
                 self.win_sound.play()
+
+    def increase_level(self):
+        self.level += 1
+        self.grid = environment()
+        # Create the player
+        self.player = Player(self.grid)
+        # Create the blocks that will set the paths where the player can go
+        self.empty_blocks = pygame.sprite.Group()
+        self.non_empty_blocks = pygame.sprite.Group()
+        # Create a group for the dots on the screen
+        self.dots_group = pygame.sprite.Group()
+        # Set the environment:
+        for i, row in enumerate(self.grid):
+            for j, item in enumerate(row):
+                if item == 0:
+                    self.empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 20, 20))
+                else:
+                    self.non_empty_blocks.add(Block(j * 32 + 8, i * 32 + 8, BLACK, 16, 16))
+
+        # Create the enemies
+        self.enemies = pygame.sprite.Group()
+        self.enemies.add(Blinky(self.grid))
+        self.enemies.add(Clyde(self.grid))
+        self.enemies.add(Inky(self.grid))
+        self.enemies.add(Pinky(self.grid))
+
+        # Add the dots inside the game
+        for i, row in enumerate(self.grid):
+            for j, item in enumerate(row):
+                if item != 0:
+                    self.dots_group.add(Ellipse(j * 32 + 12, i * 32 + 12, WHITE, 8, 8))
 
     def display_frame(self, screen):
         # First, clear the screen to white. Don't put other drawing commands
@@ -160,7 +195,7 @@ class Game(object):
             self.enemies.draw(screen)
             screen.blit(self.player.image, self.player.rect)
             # Render the text for the score
-            text = self.font.render("Score: " + str(self.score), True, BLUE)
+            text = self.font.render("Score: {}; Level: {}".format(self.score, self.level), True, WHITE)
             # Put the text on the screen
             screen.blit(text, [120, 20])
 
