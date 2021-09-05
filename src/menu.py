@@ -5,9 +5,9 @@ SCREEN_HEIGHT = 576
 
 
 class Menu(object):
-    state = 0
 
     def __init__(self, items, font_color=(0, 0, 0), select_color=(0, 230, 0), ttf_font=None, font_size=25):
+        self.state = 0
         self.font_color = font_color
         self.select_color = select_color
         self.items = items
@@ -15,18 +15,14 @@ class Menu(object):
 
     def display_frame(self, screen):
         for index, item in enumerate(self.items):
-            if self.state == index:
-                label = self.font.render(item, True, self.select_color)
-            else:
-                label = self.font.render(item, True, self.font_color)
+            label = self.font.render(item, True, self.select_color if self.state == index else self.font_color)
 
             width = label.get_width()
             height = label.get_height()
 
             pos_x = (SCREEN_WIDTH / 2) - (width / 2)
-            # t_h: total height of text block
-            t_h = len(self.items) * height
-            pos_y = (SCREEN_HEIGHT / 2) - (t_h / 2) + (index * height)
+            text_block_total_height = len(self.items) * height
+            pos_y = (SCREEN_HEIGHT / 2) - (text_block_total_height / 2) + (index * height)
 
             screen.blit(label, (pos_x, pos_y))
 
