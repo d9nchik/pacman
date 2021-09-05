@@ -15,6 +15,7 @@ RED = (255, 0, 0)
 
 
 class Game(object):
+    # TODO: add level system
     def __init__(self):
         self.font = pygame.font.Font(None, 40)
         self.about = False
@@ -34,7 +35,7 @@ class Game(object):
         self.non_empty_blocks = pygame.sprite.Group()
         # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
-        # Set the enviroment:
+        # Set the environment:
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
                 if item == 0:
@@ -48,6 +49,7 @@ class Game(object):
         self.enemies.add(Clyde(self.grid))
         self.enemies.add(Inky(self.grid))
         self.enemies.add(Pinky(self.grid))
+
         # Add the dots inside the game
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
@@ -128,7 +130,7 @@ class Game(object):
             self.game_over = self.player.game_over
             self.enemies.update()
             # win effect
-            if self.score > 100:
+            if len(self.dots_group) == 0:
                 self.game_over = True
                 self.about = False
                 self.win = True
