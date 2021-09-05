@@ -38,7 +38,7 @@ class Ellipse(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
 
 
-class Slime(pygame.sprite.Sprite, Entity):
+class Spirit(pygame.sprite.Sprite, Entity):
     def __init__(self, image_path, grid):
         # Call the parent class (Sprite) constructor
         pygame.sprite.Sprite.__init__(self)
@@ -105,10 +105,15 @@ class Slime(pygame.sprite.Sprite, Entity):
         items = set()
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
-                if item != 0 and len(list(filter(lambda x: x != 0, get_cell_neighbours(self.grid, i, j)))) != 2:
+                if item != 0 and is_tube(get_cell_neighbours(self.grid, i, j)):
                     items.add((j * 32, i * 32))
 
         return items
+
+
+def is_tube(neighbours):
+    return len(list(filter(lambda x: x != 0, neighbours))) != 2 and (
+            (neighbours[0] != 0 and neighbours[1] != 0) or (neighbours[2] != 0 and neighbours[3] != 0))
 
 
 def get_cell_neighbours(grid, x, y):
@@ -119,25 +124,25 @@ def get_cell_neighbours(grid, x, y):
     return neighbours
 
 
-class Blinky(Slime):
+class Blinky(Spirit):
 
     def __init__(self, grid):
         super().__init__('./src/sprites/blinky.png', grid)
 
 
-class Clyde(Slime):
+class Clyde(Spirit):
 
     def __init__(self, grid):
         super().__init__('./src/sprites/clyde.png', grid)
 
 
-class Inky(Slime):
+class Inky(Spirit):
 
     def __init__(self, grid):
         super().__init__('./src/sprites/inky.png', grid)
 
 
-class Pinky(Slime):
+class Pinky(Spirit):
 
     def __init__(self, grid):
         super().__init__('./src/sprites/pinky.png', grid)
