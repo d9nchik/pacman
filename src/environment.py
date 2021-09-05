@@ -46,10 +46,6 @@ def display_row_by_row(grid):
         print(row)
 
 
-def environment():
-    return generate_environment()
-
-
 def draw_environment(screen, grid):
     dimension_x = len(grid)
     dimension_y = len(grid[0])

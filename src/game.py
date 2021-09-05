@@ -1,7 +1,7 @@
 import pygame.mixer
 
 from src.enemies import *
-from src.environment import environment, draw_environment
+from src.environment import generate_environment, draw_environment
 from src.player import Player
 
 SCREEN_WIDTH = 800
@@ -12,8 +12,12 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+
 MAX_LEVEL = 3
 
+
+# TODO: add table of records
+# TODO: change resolution
 
 class Game(object):
     def __init__(self):
@@ -21,7 +25,7 @@ class Game(object):
         self.about = False
         self.game_over = True
         self.win = False
-        self.grid = environment()
+        self.grid = generate_environment()
         # Create the variable for the score
         self.score = 0
         self.level = 1
@@ -142,7 +146,7 @@ class Game(object):
 
     def increase_level(self):
         self.level += 1
-        self.grid = environment()
+        self.grid = generate_environment()
         # Create the player
         self.player = Player(self.grid)
         # Create the blocks that will set the paths where the player can go
