@@ -3,6 +3,7 @@ import pygame.mixer
 from src.enemies import Blinky, Inky, Pinky, Clyde
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
+from src.menu import Menu
 from src.player import Player
 
 SCREEN_WIDTH = 800
@@ -25,12 +26,11 @@ MAX_LIFE_LEVEL = 3
 
 class Game(object):
     def __init__(self):
-        self.font = pygame.font.Font(None, 40)
         self.about = False
         self.game_over = True
         self.win = False
         self.life = MAX_LIFE_LEVEL
-        # Create the font for displaying the score on the screen
+        # font for score on the screen
         self.font = pygame.font.Font(None, 35)
 
         self.menu = Menu(("Start", "Rules", "Exit"), font_color=WHITE, font_size=60)
@@ -177,7 +177,7 @@ class Game(object):
             else:
                 self.menu.display_frame(screen)
         else:
-            # --- Draw the game here ---
+            # draw game
             draw_environment(screen, self.grid)
             self.dots_group.draw(screen)
             self.enemies.draw(screen)
@@ -185,7 +185,7 @@ class Game(object):
             # Render the text for the score
             text = self.font.render("Score: {}; Level: {}: HP: {}".format(self.score, self.level, self.life), True,
                                     WHITE)
-            # Put the text on the screen
+            # put text on screen
             screen.blit(text, [120, 20])
 
         # update the screen with new draw
@@ -200,39 +200,3 @@ class Game(object):
         pos_y = (SCREEN_HEIGHT / 2) - (height / 2)
         # draw label
         screen.blit(label, (pos_x, pos_y))
-
-
-class Menu(object):
-    state = 0
-
-    def __init__(self, items, font_color=(0, 0, 0), select_color=(0, 230, 0), ttf_font=None, font_size=25):
-        self.font_color = font_color
-        self.select_color = select_color
-        self.items = items
-        self.font = pygame.font.Font(ttf_font, font_size)
-
-    def display_frame(self, screen):
-        for index, item in enumerate(self.items):
-            if self.state == index:
-                label = self.font.render(item, True, self.select_color)
-            else:
-                label = self.font.render(item, True, self.font_color)
-
-            width = label.get_width()
-            height = label.get_height()
-
-            pos_x = (SCREEN_WIDTH / 2) - (width / 2)
-            # t_h: total height of text block
-            t_h = len(self.items) * height
-            pos_y = (SCREEN_HEIGHT / 2) - (t_h / 2) + (index * height)
-
-            screen.blit(label, (pos_x, pos_y))
-
-    def event_handler(self, event):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                if self.state > 0:
-                    self.state -= 1
-            elif event.key == pygame.K_DOWN:
-                if self.state < len(self.items) - 1:
-                    self.state += 1
