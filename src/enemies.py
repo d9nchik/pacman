@@ -105,14 +105,14 @@ class Spirit(pygame.sprite.Sprite, Entity):
         items = set()
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
-                if item != 0 and is_tube(get_cell_neighbours(self.grid, i, j)):
+                if item != 0 and not is_tube(get_cell_neighbours(self.grid, i, j)):
                     items.add((j * 32, i * 32))
 
         return items
 
 
 def is_tube(neighbours):
-    return len(list(filter(lambda x: x != 0, neighbours))) != 2 and (
+    return len(list(filter(lambda x: x != 0, neighbours))) == 2 and (
             (neighbours[0] != 0 and neighbours[1] != 0) or (neighbours[2] != 0 and neighbours[3] != 0))
 
 
