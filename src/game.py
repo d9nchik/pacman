@@ -12,10 +12,10 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+MAX_LEVEL = 3
 
 
 class Game(object):
-    # TODO: add level system
     def __init__(self):
         self.font = pygame.font.Font(None, 40)
         self.about = False
@@ -134,7 +134,7 @@ class Game(object):
             if len(self.dots_group) == 0:
                 self.increase_level()
 
-            if self.level == 4:
+            if self.level == MAX_LEVEL + 1:
                 self.game_over = True
                 self.about = False
                 self.win = True

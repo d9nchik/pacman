@@ -34,7 +34,7 @@ def generate_environment():
     y = random.randint(0, dimension_y - 1)
     grid[x][y] = 1
     direction = random.randint(0, 3)
-    for n in range(0, 600):
+    for n in range(0, 500):
         if n % 5 == 4:
             direction = random.randint(0, 3)
         x, y = apply_direction_to_grid(grid, x, y, direction)
