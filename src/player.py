@@ -4,8 +4,6 @@ from src.entity import Entity
 from src.settings import *
 
 
-# FIXME: refactor
-
 class Player(pygame.sprite.Sprite, Entity):
     change_x = 0
     change_y = 0
@@ -85,39 +83,26 @@ class Player(pygame.sprite.Sprite, Entity):
     def move_down(self):
         self.change_y = 3
 
-    def stop_move_right(self):
+    def stop_move_horizontal(self):
         self.change_x = 0
 
-    def stop_move_left(self):
-        if self.change_x != 0:
-            self.image = pygame.transform.flip(self.image, True, False)
-        self.change_x = 0
-
-    def stop_move_up(self):
-        if self.change_y != 0:
-            self.image = pygame.transform.rotate(self.image, 90)
-        self.change_y = 0
-
-    def stop_move_down(self):
-        if self.change_y != 0:
-            self.image = pygame.transform.rotate(self.image, 270)
+    def stop_move_vertical(self):
         self.change_y = 0
 
 
 class Animation(object):
     def __init__(self, img, width, height):
-        # Load the sprite sheet
+        # load sprite
         self.sprite_sheet = img
-        # Create a list to store the images
         self.image_list = []
         self.load_images(width, height)
-        # Create a variable which will hold the current image of the list
+        # current image in list
         self.index = 0
-        # Create a variable that will hold the time
+        # time variable
         self.clock = 1
 
     def load_images(self, width, height):
-        # Go through every single image in the sprite sheet
+        # iterate over image in the sprite sheet
         for y in range(0, self.sprite_sheet.get_height(), height):
             for x in range(0, self.sprite_sheet.get_width(), width):
                 # load images into a list
@@ -125,12 +110,12 @@ class Animation(object):
                 self.image_list.append(img)
 
     def get_image(self, x, y, width, height):
-        # Create a new blank image
+        # create a new blank image
         image = pygame.Surface([width, height]).convert()
-        # Copy the sprite from the large sheet onto the smaller
+        # scale sprite
         image.blit(self.sprite_sheet, (0, 0), (x, y, width, height))
-        # Assuming black works as the transparent color
-        image.set_colorkey((0, 0, 0))
+        # let black is transparent color
+        image.set_colorkey(BLACK)
         return image
 
     def get_current_image(self):
@@ -140,12 +125,9 @@ class Animation(object):
         return len(self.image_list)
 
     def update(self, fps=30):
-        if self.clock == fps:
-            self.clock = 1
-        else:
-            self.clock += 1
+        self.clock += 1
+        self.clock %= fps + 1
 
         if self.clock in range(1, fps, 8):
             self.index += 1
-            if self.index == len(self.image_list):
-                self.index = 0
+            self.index %= self.get_length()

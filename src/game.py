@@ -99,14 +99,10 @@ class Game(object):
                     self.records_page = False
 
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    self.player.stop_move_right()
-                elif event.key == pygame.K_LEFT:
-                    self.player.stop_move_left()
-                elif event.key == pygame.K_UP:
-                    self.player.stop_move_up()
-                elif event.key == pygame.K_DOWN:
-                    self.player.stop_move_down()
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                    self.player.stop_move_horizontal()
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                    self.player.stop_move_vertical()
 
         return False
 
