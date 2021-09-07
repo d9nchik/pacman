@@ -13,3 +13,5 @@ RED = (255, 0, 0)
 
 MAX_LEVEL = 3
 MAX_LIFE_LEVEL = 3
+
+RECORDS_PATH = 'records.txt'

@@ -5,24 +5,24 @@ from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.menu import Menu
 from src.player import Player
+from src.records import Records
 from src.settings import *
 
 
-# TODO: add table of records
 # TODO: change resolution
 # TODO: add rage
 # FIXME: refactor
 
 class Game(object):
     def __init__(self):
-        self.about = False
+        self.records_page = False
         self.game_over = True
         self.win = False
         self.life = MAX_LIFE_LEVEL
         # font for score on the screen
         self.font = pygame.font.Font(None, 35)
 
-        self.menu = Menu(("Start", "Rules", "Exit"), font_color=WHITE, font_size=60)
+        self.menu = Menu(("Start", "Records", "Exit"), font_color=WHITE, font_size=60)
 
         # load sounds
         self.pacman_sound = pygame.mixer.Sound("./src/sounds/pacman_sound.ogg")
@@ -40,6 +40,8 @@ class Game(object):
         self.empty_blocks = pygame.sprite.Group()
         self.non_empty_blocks = pygame.sprite.Group()
         self.dots_group = pygame.sprite.Group()
+
+        self.records = Records(RECORDS_PATH)
 
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
@@ -66,14 +68,14 @@ class Game(object):
             self.menu.event_handler(event)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if self.game_over and not self.about:
+                    if self.game_over and not self.records_page:
                         if self.menu.state == 0:
                             # start
                             self.__init__()
                             self.game_over = False
                         elif self.menu.state == 1:
-                            # rules
-                            self.about = True
+                            # records
+                            self.records_page = True
                         elif self.menu.state == 2:
                             # exit
                             return True
@@ -94,7 +96,7 @@ class Game(object):
                     if self.game_over:
                         self.score = 0
                     self.game_over = True
-                    self.about = False
+                    self.records_page = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -115,7 +117,7 @@ class Game(object):
             if len(block_hit_list) > 0:
                 self.pacman_sound.play()
                 self.score += len(block_hit_list)
-            if self.life != 1:
+            if self.life > 1:
                 block_hit_list = pygame.sprite.spritecollide(self.player, self.enemies, False)
                 if len(block_hit_list) > 0:
                     self.decrease_life_level()
@@ -134,9 +136,11 @@ class Game(object):
 
             if self.level == MAX_LEVEL + 1:
                 self.game_over = True
-                self.about = False
+                self.records_page = False
                 self.win = True
                 self.win_sound.play()
+            if self.game_over:
+                self.records.add_score(self.score)
 
     def decrease_life_level(self):
         self.life -= 1
@@ -153,20 +157,15 @@ class Game(object):
         self.score = score
         self.game_over = False
 
-    def display_frame(self, screen):
+    def display_frame(self, screen) -> None:
         # clear the screen
         screen.fill(BLACK)
         if self.game_over:
             if self.score:
                 message = 'You win)' if self.win else 'You lose('
                 self.display_message(screen, "Game Over! {} Final Score: {}".format(message, self.score), WHITE)
-            elif self.about:
-                self.display_message(screen, "It is an arcade Game")
-                # "a maze containing various dots,\n"
-                # known as Pac-Dots, and four ghosts.\n"
-                # "The four ghosts roam the maze, trying to kill Pac-Man.\n"
-                # "If any of the ghosts hit Pac-Man, he loses a life;\n"
-                # "the game is over.\n")
+            elif self.records_page:
+                self.display_message_block(screen, self.records.get_scores())
             else:
                 self.menu.display_frame(screen)
         else:
@@ -184,12 +183,28 @@ class Game(object):
         # update the screen with new draw
         pygame.display.flip()
 
-    def display_message(self, screen, message, color=RED):
+    def display_message(self, screen, message, color=RED) -> None:
         label = self.font.render(message, True, color)
         width = label.get_width()
         height = label.get_height()
         # get the position of the label
-        pos_x = (SCREEN_WIDTH / 2) - (width / 2)
-        pos_y = (SCREEN_HEIGHT / 2) - (height / 2)
+        pos_x = SCREEN_WIDTH / 2 - width / 2
+        pos_y = SCREEN_HEIGHT / 2 - height / 2
         # draw label
         screen.blit(label, (pos_x, pos_y))
+
+    def display_message_block(self, screen, message_block: [str]) -> None:
+        if len(message_block) == 0:
+            self.display_message(screen, 'No records')
+            return
+
+        number_of_messages = len(message_block)
+        list_of_labels = list(map(lambda message: self.font.render(str(message), True, WHITE), message_block))
+        height = list_of_labels[0].get_height() + 2
+        # get the position of the label
+        pos_x = SCREEN_WIDTH * 0.3
+        pos_y = SCREEN_HEIGHT / 2 - height * number_of_messages / 2
+        # draw label
+        for label in list_of_labels:
+            screen.blit(label, (pos_x, pos_y))
+            pos_y += height
