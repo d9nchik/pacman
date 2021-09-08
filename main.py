@@ -1,6 +1,6 @@
 import pygame
 
-from src.game import Game
+from src.game_window import GameWindow
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 if __name__ == '__main__':
@@ -9,11 +9,11 @@ if __name__ == '__main__':
     pygame.display.set_caption("PACMAN - FOR LIFE EDITION")
     done = False
     clock = pygame.time.Clock()
-    game = Game()
+    game = GameWindow(screen)
 
     while not done:
         done = game.process_events()
         game.run_logic()
-        game.display_frame(screen)
+        game.display_frame()
         clock.tick(30)
     pygame.quit()
