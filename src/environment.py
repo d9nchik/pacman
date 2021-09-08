@@ -23,11 +23,9 @@ def apply_direction_to_grid(grid, x, y, direction):
 
 
 def generate_environment():
-    dimension_x = 18
-    dimension_y = 25
-    grid = [[0 for x in range(dimension_y)] for x in range(dimension_x)]
-    x = random.randint(0, dimension_x - 1)
-    y = random.randint(0, dimension_y - 1)
+    grid = [[0 for x in range(DIMENSION_Y)] for x in range(DIMENSION_X)]
+    x = random.randint(0, DIMENSION_X - 1)
+    y = random.randint(0, DIMENSION_Y - 1)
     grid[x][y] = 1
     direction = random.randint(0, 3)
     for n in range(0, 500):

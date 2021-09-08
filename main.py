@@ -1,9 +1,7 @@
 import pygame
 
 from src.game import Game
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 576
+from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 if __name__ == '__main__':
     pygame.init()

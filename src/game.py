@@ -9,7 +9,6 @@ from src.records import Records
 from src.settings import *
 
 
-# TODO: change resolution
 # TODO: add rage
 # FIXME: refactor
 
@@ -95,6 +94,8 @@ class Game(object):
                 elif event.key == pygame.K_ESCAPE:
                     if self.game_over:
                         self.score = 0
+                    else:
+                        self.records.add_score(self.score)
                     self.game_over = True
                     self.records_page = False
 
