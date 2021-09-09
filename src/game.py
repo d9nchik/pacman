@@ -50,11 +50,15 @@ class Game(object):
                     self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
                                                 QUARTER_BLOCK_SIZE))
 
+        block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
+        self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
+        self.player_j = int((block.rect.x - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
+
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Blinky(self.grid))
-        self.enemies.add(Clyde(self.grid))
-        self.enemies.add(Inky(self.grid))
-        self.enemies.add(Pinky(self.grid))
+        self.enemies.add(Blinky(self.grid, self.player_i, self.player_j))
+        self.enemies.add(Clyde(self.grid, self.player_i, self.player_j))
+        self.enemies.add(Inky(self.grid, self.player_i, self.player_j))
+        self.enemies.add(Pinky(self.grid, self.player_i, self.player_j))
 
     def run_logic(self):
         if not self.game_over:
@@ -74,7 +78,13 @@ class Game(object):
                     self.player.explosion = True
                     self.game_over_sound.play()
             self.game_over = self.player.game_over
-            self.enemies.update()
+
+            blocks = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)
+            if len(blocks) != 0:
+                self.player_i = int((blocks[0].rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
+                self.player_j = int((blocks[0].rect.x - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
+
+            self.enemies.update(self.player_i, self.player_j)
             # win effect
             if len(self.dots_group) == 0:
                 self.upgrade.play()
