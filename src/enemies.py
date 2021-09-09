@@ -37,7 +37,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
     def change_direction(self, player_i, player_j):
 
         # direction = random.choice(self.get_available_directions())
-        direction = self.breadth_first_search(player_i, player_j)
+        direction = self.deep_first_search(player_i, player_j)
         if direction == "left":
             self.change_x = -2
             self.change_y = 0
@@ -80,8 +80,25 @@ class Spirit(pygame.sprite.Sprite, Entity):
                             get_available_directions_coordinates(self.grid, node_to_visit_i,
                                                                  node_to_visit_j)))
 
-    def deep_first_search(self):
-        pass
+    def deep_first_search(self, want_i, want_j):
+        j = self.rect.topleft[0] // BLOCK_SIZE
+        i = self.rect.topleft[1] // BLOCK_SIZE
+        visited = {(i, j)}
+        next_nodes_to_visit = get_available_directions_coordinates(self.grid, i, j)
+        while len(next_nodes_to_visit) != 0:
+            node_to_visit_i, node_to_visit_j, direction = next_nodes_to_visit[-1]
+            if not (node_to_visit_i, node_to_visit_j) in visited:
+                visited.add((node_to_visit_i, node_to_visit_j))
+                if node_to_visit_i == want_i and node_to_visit_j == want_j:
+                    return direction
+                next_nodes_to_visit += list(
+                    map(lambda available_directions_coordinate: [available_directions_coordinate[0],
+                                                                 available_directions_coordinate[1],
+                                                                 direction],
+                        get_available_directions_coordinates(self.grid, node_to_visit_i,
+                                                             node_to_visit_j)))
+            else:
+                next_nodes_to_visit = next_nodes_to_visit[:-1]
 
     def uniform_cost_search(self):
         pass
