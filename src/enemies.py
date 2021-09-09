@@ -101,7 +101,6 @@ class Spirit(pygame.sprite.Sprite, Entity):
                 next_nodes_to_visit = next_nodes_to_visit[:-1]
 
     def uniform_cost_search(self, want_i, want_j):
-        # TODO: remove tube
         j = self.rect.topleft[0] // BLOCK_SIZE
         i = self.rect.topleft[1] // BLOCK_SIZE
         visited = {(i, j)}
