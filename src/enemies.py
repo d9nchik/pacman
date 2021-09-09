@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 from src.entity import Entity
@@ -15,6 +17,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
         self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = self.get_random_start_position()
+        self.search = self.uniform_cost_search
         self.change_direction(player_i, player_j)
 
         self.intersection_position = self.get_intersection_position()
@@ -37,7 +40,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
     def change_direction(self, player_i, player_j):
 
         # direction = random.choice(self.get_available_directions())
-        direction = self.uniform_cost_search(player_i, player_j)
+        direction = self.search(player_i, player_j)
         if direction == "left":
             self.change_x = -2
             self.change_y = 0
@@ -131,6 +134,11 @@ class Spirit(pygame.sprite.Sprite, Entity):
                             prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1:
                         prices[(node_to_visit_i, node_to_visit_j)] = [cheapest_price + 1, direction]
 
+    def random_search(self, want_i, want_j):
+        j = self.rect.topleft[0] // BLOCK_SIZE
+        i = self.rect.topleft[1] // BLOCK_SIZE
+        return random.choice(get_available_directions(self.grid, i, j))
+
 
 def get_available_directions_coordinates(grid, i, j):
     dimension_x = len(grid)
@@ -147,11 +155,8 @@ def get_available_directions_coordinates(grid, i, j):
 
 
 def get_available_directions(grid, i, j) -> [str]:
-    # TODO: refactor use get_cell_neighbours
     dimension_x = len(grid)
     dimension_y = len(grid[0])
-    # j = self.rect.topleft[0] // BLOCK_SIZE
-    # i = self.rect.topleft[1] // BLOCK_SIZE
     directions = []
     if grid[(i + 1) % dimension_x][j] != 0:
         directions.append('down')
@@ -187,15 +192,18 @@ class Clyde(Spirit):
 
     def __init__(self, grid, player_i, player_j):
         super().__init__('./src/sprites/clyde.png', grid, player_i, player_j)
+        self.search = self.breadth_first_search
 
 
 class Inky(Spirit):
 
     def __init__(self, grid, player_i, player_j):
         super().__init__('./src/sprites/inky.png', grid, player_i, player_j)
+        self.search = self.deep_first_search
 
 
 class Pinky(Spirit):
 
     def __init__(self, grid, player_i, player_j):
         super().__init__('./src/sprites/pinky.png', grid, player_i, player_j)
+        self.search = self.random_search
