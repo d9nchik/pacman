@@ -54,11 +54,12 @@ class Game(object):
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
         self.player_j = int((block.rect.x - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
 
+        self.blinky = Blinky(self.grid, self.player_i, self.player_j)
+        self.clyde = Clyde(self.grid, self.player_i, self.player_j)
+        self.inky = Inky(self.grid, self.player_i, self.player_j)
+        self.pinky = Pinky(self.grid, self.player_i, self.player_j)
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Blinky(self.grid, self.player_i, self.player_j))
-        self.enemies.add(Clyde(self.grid, self.player_i, self.player_j))
-        self.enemies.add(Inky(self.grid, self.player_i, self.player_j))
-        self.enemies.add(Pinky(self.grid, self.player_i, self.player_j))
+        self.enemies.add(self.blinky, self.clyde, self.inky, self.pinky)
 
     def run_logic(self):
         if not self.game_over:
@@ -122,3 +123,8 @@ class Game(object):
                                 WHITE)
         # put text on screen
         screen.blit(text, [120, 20])
+
+        # show fractal seconds
+        screen.blit(self.font.render("UCS: {:5f}".format(self.blinky.time), True, WHITE), [SCREEN_WIDTH - 200, 20])
+        screen.blit(self.font.render("BFS: {:5f}".format(self.clyde.time), True, WHITE), [SCREEN_WIDTH - 200, 40])
+        screen.blit(self.font.render("DFS: {:5f}".format(self.inky.time), True, WHITE), [SCREEN_WIDTH - 200, 60])

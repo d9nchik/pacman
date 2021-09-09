@@ -1,4 +1,5 @@
 import random
+from timeit import default_timer as timer
 
 import pygame
 
@@ -13,6 +14,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
 
         self.change_x = 0
         self.change_y = 0
+        self.time = 0
         # load image
         self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect()
@@ -35,7 +37,10 @@ class Spirit(pygame.sprite.Sprite, Entity):
             self.rect.bottom = 0
 
         if self.rect.topleft in self.intersection_position:
+            start = timer()
             self.change_direction(player_i, player_j)
+            end = timer()
+            self.time = end - start
 
     def change_direction(self, player_i, player_j):
 
