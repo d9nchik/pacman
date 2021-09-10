@@ -143,6 +143,46 @@ class Player(pygame.sprite.Sprite, Entity):
                 next_nodes_to_visit = next_nodes_to_visit[:-1]
         return [(i, j), (i, j)]
 
+    def uniform_cost_search(self, want_i, want_j):
+        j = self.rect.centerx // BLOCK_SIZE
+        i = self.rect.centery // BLOCK_SIZE
+
+        if len(self.grid) <= i or len(self.grid[0]) <= j:
+            return [(i, j), (i, j)]
+
+        visited = {(i, j)}
+        prices = dict()
+        previous_points = dict()
+
+        for node_to_visit in get_available_directions_coordinates(self.grid, i, j):
+            prices[node_to_visit] = 1
+            previous_points[node_to_visit] = (i, j)
+
+        while len(prices) != 0:
+            cheapest_node = list(prices.keys())[0]
+            cheapest_price = prices[cheapest_node]
+
+            for key, value in prices.items():
+                if value < cheapest_price:
+                    cheapest_price = value
+                    cheapest_node = key
+
+            del prices[cheapest_node]
+            if cheapest_node not in visited:
+                visited.add(cheapest_node)
+                if cheapest_node == (want_i, want_j):
+                    path = [cheapest_node]
+                    while path[0] in previous_points.keys():
+                        path = [previous_points[path[0]]] + path
+                    return path
+                for node_to_visit in get_available_directions_coordinates(self.grid, cheapest_node[0],
+                                                                          cheapest_node[1]):
+                    if node_to_visit not in visited \
+                            and (node_to_visit not in prices or prices[node_to_visit] > cheapest_price + 1):
+                        prices[node_to_visit] = cheapest_price + 1
+                        previous_points[node_to_visit] = cheapest_node
+        return [(i, j), (i, j)]
+
 
 def get_available_directions_coordinates(grid, i, j):
     dimension_x = len(grid)

@@ -123,7 +123,7 @@ class Game(object):
 
             display_line_array(screen, list(
                 map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
-                    self.player.deep_first_search(i, j))))
+                    self.player.uniform_cost_search(i, j))))
 
 
 def display_line_array(screen, dots_array):
