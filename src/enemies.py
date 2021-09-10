@@ -135,8 +135,9 @@ class Spirit(pygame.sprite.Sprite, Entity):
                     return direction
                 for node_to_visit_i, node_to_visit_j, _ in get_available_directions_coordinates(self.grid, visit_i,
                                                                                                 visit_j):
-                    if (node_to_visit_i, node_to_visit_j) not in prices or \
-                            prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1:
+                    if (node_to_visit_i, node_to_visit_j) not in visited and (
+                            (node_to_visit_i, node_to_visit_j) not in prices or
+                            prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1):
                         prices[(node_to_visit_i, node_to_visit_j)] = [cheapest_price + 1, direction]
 
     def random_search(self, want_i, want_j):
