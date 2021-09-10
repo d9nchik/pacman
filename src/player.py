@@ -172,7 +172,7 @@ class Player(pygame.sprite.Sprite, Entity):
                 visited.add(cheapest_node)
                 if cheapest_node == (want_i, want_j):
                     path = [cheapest_node]
-                    while path[0] in previous_points.keys():
+                    while path[0] in previous_points:
                         path = [previous_points[path[0]]] + path
                     return path
                 for node_to_visit in get_available_directions_coordinates(self.grid, cheapest_node[0],
