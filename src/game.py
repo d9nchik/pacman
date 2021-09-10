@@ -2,7 +2,7 @@ import math
 
 import pygame.mixer
 
-from src.enemies import Pinky
+from src.enemies import Blinky, Clyde, Inky, Pinky
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.player import Player
@@ -52,11 +52,11 @@ class Game(object):
                     self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
                                                 QUARTER_BLOCK_SIZE))
 
-        # self.blinky = Blinky(self.grid)
-        # self.clyde = Clyde(self.grid)
-        # self.inky = Inky(self.grid)
+        self.blinky = Blinky(self.grid)
+        self.clyde = Clyde(self.grid)
+        self.inky = Inky(self.grid)
         self.pinky = Pinky(self.grid)
-        self.enemies = pygame.sprite.Group(self.pinky)
+        self.enemies = pygame.sprite.Group(self.blinky, self.clyde, self.inky, self.pinky)
 
     def run_logic(self):
         if not self.game_over:
@@ -117,22 +117,23 @@ class Game(object):
         self.display_search_results(screen)
 
     def display_search_results(self, screen):
-        for sprite in self.enemies.sprites():
+        colors = [RED, YELLOW, BLUE, PURPLE]
+        for sprite, color in zip(self.enemies.sprites(), colors):
             j = sprite.rect.centerx // BLOCK_SIZE
             i = sprite.rect.centery // BLOCK_SIZE
 
             display_line_array(screen, list(
                 map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
-                    self.player.uniform_cost_search(i, j))))
+                    self.player.uniform_cost_search(i, j))), color)
 
 
-def display_line_array(screen, dots_array):
+def display_line_array(screen, dots_array, color=BLUE):
     if len(dots_array) < 2:
         return
     start_point = dots_array[0]
     for point in dots_array[1:]:
         if distance(start_point, point) <= 1.5 * BLOCK_SIZE:
-            pygame.draw.line(screen, BLUE, [start_point[1], start_point[0]], [point[1], point[0]], 6)
+            pygame.draw.line(screen, color, [start_point[1], start_point[0]], [point[1], point[0]], 6)
         start_point = point
 
 
