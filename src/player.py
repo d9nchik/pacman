@@ -119,6 +119,30 @@ class Player(pygame.sprite.Sprite, Entity):
                     del paths[node_to_visit]
         return [(i, j), (i, j)]
 
+    def deep_first_search(self, want_i: int, want_j: int):
+        j = self.rect.centerx // BLOCK_SIZE
+        i = self.rect.centery // BLOCK_SIZE
+
+        if len(self.grid) <= i or len(self.grid[0]) <= j:
+            return [(i, j), (i, j)]
+
+        visited = {(i, j)}
+        path = [(i, j)]
+        next_nodes_to_visit = get_available_directions_coordinates(self.grid, i, j)
+        while len(next_nodes_to_visit) != 0:
+            node_to_visit = next_nodes_to_visit[-1]
+            path += [node_to_visit]
+            if node_to_visit not in visited:
+                visited.add(node_to_visit)
+                if node_to_visit == (want_i, want_j):
+                    return path
+                next_nodes_to_visit += get_available_directions_coordinates(self.grid, node_to_visit[0],
+                                                                            node_to_visit[1])
+            else:
+                path = path[:-1]
+                next_nodes_to_visit = next_nodes_to_visit[:-1]
+        return [(i, j), (i, j)]
+
 
 def get_available_directions_coordinates(grid, i, j):
     dimension_x = len(grid)

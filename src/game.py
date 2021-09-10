@@ -123,7 +123,7 @@ class Game(object):
 
             display_line_array(screen, list(
                 map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
-                    self.player.breadth_first_search(i, j))))
+                    self.player.deep_first_search(i, j))))
 
 
 def display_line_array(screen, dots_array):
@@ -131,7 +131,7 @@ def display_line_array(screen, dots_array):
         return
     start_point = dots_array[0]
     for point in dots_array[1:]:
-        if int(distance(start_point, point)) == BLOCK_SIZE:
+        if distance(start_point, point) <= 1.5 * BLOCK_SIZE:
             pygame.draw.line(screen, BLUE, [start_point[1], start_point[0]], [point[1], point[0]], 6)
         start_point = point
 
