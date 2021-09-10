@@ -1,6 +1,8 @@
+import math
+
 import pygame.mixer
 
-from src.enemies import Blinky, Inky, Pinky, Clyde
+from src.enemies import Pinky
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.player import Player
@@ -50,11 +52,11 @@ class Game(object):
                     self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
                                                 QUARTER_BLOCK_SIZE))
 
-        self.enemies = pygame.sprite.Group()
-        self.enemies.add(Blinky(self.grid))
-        self.enemies.add(Clyde(self.grid))
-        self.enemies.add(Inky(self.grid))
-        self.enemies.add(Pinky(self.grid))
+        # self.blinky = Blinky(self.grid)
+        # self.clyde = Clyde(self.grid)
+        # self.inky = Inky(self.grid)
+        self.pinky = Pinky(self.grid)
+        self.enemies = pygame.sprite.Group(self.pinky)
 
     def run_logic(self):
         if not self.game_over:
@@ -112,3 +114,27 @@ class Game(object):
                                 WHITE)
         # put text on screen
         screen.blit(text, [120, 20])
+        self.display_search_results(screen)
+
+    def display_search_results(self, screen):
+        for sprite in self.enemies.sprites():
+            j = sprite.rect.centerx // BLOCK_SIZE
+            i = sprite.rect.centery // BLOCK_SIZE
+
+            display_line_array(screen, list(
+                map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
+                    self.player.breadth_first_search(i, j))))
+
+
+def display_line_array(screen, dots_array):
+    if len(dots_array) < 2:
+        return
+    start_point = dots_array[0]
+    for point in dots_array[1:]:
+        if int(distance(start_point, point)) == BLOCK_SIZE:
+            pygame.draw.line(screen, BLUE, [start_point[1], start_point[0]], [point[1], point[0]], 6)
+        start_point = point
+
+
+def distance(dot_1, dot_2):
+    return math.sqrt((dot_1[0] - dot_2[0]) ** 2 + (dot_1[1] - dot_2[1]) ** 2)

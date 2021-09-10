@@ -89,6 +89,49 @@ class Player(pygame.sprite.Sprite, Entity):
     def stop_move_vertical(self):
         self.change_y = 0
 
+    def breadth_first_search(self, want_i: int, want_j: int):
+        j = self.rect.centerx // BLOCK_SIZE
+        i = self.rect.centery // BLOCK_SIZE
+
+        if len(self.grid) <= i or len(self.grid[0]) <= j:
+            return [(i, j), (i, j)]
+
+        visited = {(i, j)}
+        paths = dict()
+        next_nodes_to_visit = get_available_directions_coordinates(self.grid, i, j)
+        for node in next_nodes_to_visit:
+            paths[node] = [(i, j)]
+
+        while len(next_nodes_to_visit) != 0:
+            nodes_to_visit = next_nodes_to_visit
+            next_nodes_to_visit = []
+            for node_to_visit in nodes_to_visit:
+                if node_to_visit not in visited:
+                    visited.add(node_to_visit)
+                    path = paths.get(node_to_visit)
+                    if node_to_visit == (want_i, want_j):
+                        return path + [(want_i, want_j)]
+                    new_nodes = get_available_directions_coordinates(self.grid, node_to_visit[0],
+                                                                     node_to_visit[1])
+                    for new_node in new_nodes:
+                        paths[new_node] = path + [node_to_visit]
+                    next_nodes_to_visit += new_nodes
+                    del paths[node_to_visit]
+        return [(i, j), (i, j)]
+
+
+def get_available_directions_coordinates(grid, i, j):
+    dimension_x = len(grid)
+    dimension_y = len(grid[0])
+    coordinates_list = [((i + 1) % dimension_x, j), ((i - 1) % dimension_x, j),
+                        (i, (j + 1) % dimension_y), (i, (j - 1) % dimension_y)]
+    result = []
+    for coordinates in coordinates_list:
+        if grid[coordinates[0]][coordinates[1]] != 0:
+            result.append(coordinates)
+
+    return result
+
 
 class Animation(object):
     def __init__(self, img, width, height):
