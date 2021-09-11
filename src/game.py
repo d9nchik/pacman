@@ -58,6 +58,8 @@ class Game(object):
         self.pinky = Pinky(self.grid)
         self.enemies = pygame.sprite.Group(self.blinky, self.clyde, self.inky, self.pinky)
 
+        self.path_search_engine_index = 0
+
     def run_logic(self):
         if not self.game_over:
             self.player.update(self.empty_blocks)
@@ -124,7 +126,18 @@ class Game(object):
 
             display_line_array(screen, list(
                 map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
-                    self.player.uniform_cost_search(i, j))), color)
+                    self.apply_path_search_to_player(i, j))), color)
+
+    def apply_path_search_to_player(self, i, j):
+        if self.path_search_engine_index == 0:
+            return self.player.breadth_first_search(i, j)
+        if self.path_search_engine_index == 1:
+            return self.player.deep_first_search(i, j)
+        return self.player.uniform_cost_search(i, j)
+
+    def change_path_search_engine(self):
+        self.path_search_engine_index += 1
+        self.path_search_engine_index %= 3
 
 
 def display_line_array(screen, dots_array, color=BLUE):

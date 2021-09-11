@@ -50,6 +50,9 @@ class GameWindow(object):
                 elif event.key == pygame.K_DOWN:
                     self.game.player.move_down()
 
+                elif event.key == pygame.K_z:
+                    self.game.change_path_search_engine()
+
                 elif event.key == pygame.K_ESCAPE:
                     if self.game.game_over:
                         self.game.score = 0
