@@ -1,4 +1,5 @@
 import math
+from timeit import default_timer as timer
 
 import pygame.mixer
 
@@ -59,6 +60,9 @@ class Game(object):
         self.enemies = pygame.sprite.Group(self.blinky, self.clyde, self.inky, self.pinky)
 
         self.path_search_engine_index = 0
+        self.timer_counter = 0
+        self.total_search_engine_time = 0
+        self.previous_search_engine_time = 0
 
     def run_logic(self):
         if not self.game_over:
@@ -120,13 +124,38 @@ class Game(object):
 
     def display_search_results(self, screen):
         colors = [RED, YELLOW, BLUE, PURPLE]
+        total_time = 0
         for sprite, color in zip(self.enemies.sprites(), colors):
             j = sprite.rect.centerx // BLOCK_SIZE
             i = sprite.rect.centery // BLOCK_SIZE
 
+            start = timer()
+            path_to_player = self.apply_path_search_to_player(i, j)
+            end = timer()
+            total_time += end - start
+
             display_line_array(screen, list(
                 map(lambda x: (BLOCK_SIZE * x[0] + HALF_BLOCK_SIZE, BLOCK_SIZE * (x[1] + 0.5)),
-                    self.apply_path_search_to_player(i, j))), color)
+                    path_to_player)), color)
+        self.total_search_engine_time += total_time
+        self.increase_timer_counter()
+        text = self.font.render("{}: {:5f}".format(self.name_of_path_search_engine(), self.previous_search_engine_time),
+                                True, WHITE)
+        screen.blit(text, [SCREEN_WIDTH - 200, 20])
+
+    def increase_timer_counter(self) -> None:
+        self.timer_counter += 1
+        if self.timer_counter == 15:
+            self.timer_counter = 0
+            self.previous_search_engine_time = self.total_search_engine_time
+            self.total_search_engine_time = 0
+
+    def name_of_path_search_engine(self) -> str:
+        if self.path_search_engine_index == 0:
+            return 'BFS'
+        if self.path_search_engine_index == 1:
+            return 'DFS'
+        return 'UCS'
 
     def apply_path_search_to_player(self, i, j):
         if self.path_search_engine_index == 0:
@@ -135,7 +164,7 @@ class Game(object):
             return self.player.deep_first_search(i, j)
         return self.player.uniform_cost_search(i, j)
 
-    def change_path_search_engine(self):
+    def change_path_search_engine(self) -> None:
         self.path_search_engine_index += 1
         self.path_search_engine_index %= 3
 
