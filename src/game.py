@@ -49,7 +49,8 @@ class Game(object):
                     self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
                                                 QUARTER_BLOCK_SIZE))
 
-        self.player = Player(self.grid, self.dots_group)
+        self.enemies = pygame.sprite.Group()
+        self.player = Player(self.grid, self.dots_group, self.enemies)
 
         block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
@@ -59,7 +60,6 @@ class Game(object):
         self.clyde = Clyde(self.grid, self.player_i, self.player_j)
         self.inky = Inky(self.grid, self.player_i, self.player_j)
         self.pinky = Pinky(self.grid, self.player_i, self.player_j)
-        self.enemies = pygame.sprite.Group()
         self.enemies.add(self.blinky, self.clyde, self.inky, self.pinky)
 
     def run_logic(self):
@@ -101,7 +101,7 @@ class Game(object):
 
     def decrease_life_level(self):
         self.life -= 1
-        self.player = Player(self.grid, self.dots_group)
+        self.player = Player(self.grid, self.dots_group, self.enemies)
         self.hurt.play()
 
     def increase_level(self):

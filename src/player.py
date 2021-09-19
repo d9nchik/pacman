@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite, Entity):
     explosion = False
     game_over = False
 
-    def __init__(self, grid, dots_group: Group):
+    def __init__(self, grid, dots_group: Group, enemies: Group):
         pygame.sprite.Sprite.__init__(self)
 
         Entity.__init__(self, grid)
@@ -34,6 +34,7 @@ class Player(pygame.sprite.Sprite, Entity):
 
         self.want_coin = Sprite()
         self.dots_group = dots_group
+        self.enemies = enemies
         self.change_want_coin()
 
     def update(self, empty_blocks):
@@ -110,7 +111,9 @@ class Player(pygame.sprite.Sprite, Entity):
 
         for node_to_visit_i, node_to_visit_j, direction in get_available_directions_coordinates(self.grid, i, j):
             prices[(node_to_visit_i, node_to_visit_j)] = [
-                1 + heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j), direction]
+                1 + heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j) + self.enemies_heuristic(
+                    node_to_visit_i, node_to_visit_j),
+                direction]
 
         while len(prices) != 0:
             cheapest_node = list(prices.keys())[0]
@@ -132,17 +135,29 @@ class Player(pygame.sprite.Sprite, Entity):
                     return direction
                 for node_to_visit_i, node_to_visit_j, _ in get_available_directions_coordinates(self.grid, visit_i,
                                                                                                 visit_j):
+                    h = heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j)
                     if (node_to_visit_i, node_to_visit_j) not in visited and (
                             (node_to_visit_i, node_to_visit_j) not in prices or
-                            prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1 +
-                            heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j)):
+                            prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1 + h):
                         prices[(node_to_visit_i, node_to_visit_j)] = [
-                            cheapest_price + 1 + heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j), direction]
+                            cheapest_price + 1 + h, direction]
+
+    def enemies_heuristic(self, x, y):
+        h = 0
+        for sprite in self.enemies.sprites():
+            h += 118 / (1 + pacman_distance(sprite.rect.topleft[1] // BLOCK_SIZE, x, DIMENSION_X) + pacman_distance(
+                sprite.rect.topleft[0] // BLOCK_SIZE, y, DIMENSION_Y))
+        return h
+
+
+def pacman_distance(x1, x2, dimension):
+    if x1 > x2:
+        x1, x2 = x2, x1
+    return min(x2 - x1, x1 + dimension - x2)
 
 
 def heuristic(x, y, aim_x, aim_y):
-    # TODO: count_enemies
-    return 1 * (abs(x - aim_x) + abs(y - aim_y))
+    return 1 * (pacman_distance(x, aim_x, DIMENSION_X) + pacman_distance(y, aim_y, DIMENSION_Y))
 
 
 def get_available_directions_coordinates(grid, i, j):
