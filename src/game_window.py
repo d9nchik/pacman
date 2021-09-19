@@ -38,18 +38,6 @@ class GameWindow(object):
                             # exit
                             return True
 
-                elif event.key == pygame.K_RIGHT:
-                    self.game.player.move_right()
-
-                elif event.key == pygame.K_LEFT:
-                    self.game.player.move_left()
-
-                elif event.key == pygame.K_UP:
-                    self.game.player.move_up()
-
-                elif event.key == pygame.K_DOWN:
-                    self.game.player.move_down()
-
                 elif event.key == pygame.K_ESCAPE:
                     if self.game.game_over:
                         self.game.score = 0
@@ -57,12 +45,6 @@ class GameWindow(object):
                         self.records.add_score(self.game.score)
                     self.game.game_over = True
                     self.records_page = False
-
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
-                    self.game.player.stop_move_horizontal()
-                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    self.game.player.stop_move_vertical()
 
         return False
 

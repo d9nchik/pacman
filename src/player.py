@@ -1,4 +1,7 @@
+from random import choice
+
 import pygame
+from pygame.sprite import Group, Sprite
 
 from src.entity import Entity
 from src.settings import *
@@ -10,7 +13,7 @@ class Player(pygame.sprite.Sprite, Entity):
     explosion = False
     game_over = False
 
-    def __init__(self, grid):
+    def __init__(self, grid, dots_group: Group):
         pygame.sprite.Sprite.__init__(self)
 
         Entity.__init__(self, grid)
@@ -29,8 +32,15 @@ class Player(pygame.sprite.Sprite, Entity):
         img = pygame.image.load("./src/sprites/explosion.png").convert()
         self.explosion_animation = Animation(img, 30, 30)
 
+        self.want_coin = Sprite()
+        self.dots_group = dots_group
+        self.change_want_coin()
+
     def update(self, empty_blocks):
         if not self.explosion:
+            if self.rect.topleft[0] % BLOCK_SIZE == 0 and self.rect.topleft[1] % BLOCK_SIZE == 0:
+                self.change_direction()
+
             if self.rect.right < 0:
                 self.rect.left = SCREEN_WIDTH
             elif self.rect.left > SCREEN_WIDTH:
@@ -41,13 +51,6 @@ class Player(pygame.sprite.Sprite, Entity):
                 self.rect.bottom = 0
             self.rect.x += self.change_x
             self.rect.y += self.change_y
-
-            # This will stop user from moving through walls
-            if len(pygame.sprite.spritecollide(self, empty_blocks, False)) > 0:
-                self.rect.centerx -= self.change_x
-                self.rect.centery -= self.change_y
-                self.change_x = 0
-                self.change_y = 0
 
             # This will cause the animation to start
 
@@ -71,23 +74,89 @@ class Player(pygame.sprite.Sprite, Entity):
             self.explosion_animation.update(12)
             self.image = self.explosion_animation.get_current_image()
 
-    def move_right(self):
-        self.change_x = 3
+    def change_direction(self):
+        if self.want_coin not in self.dots_group:
+            self.change_want_coin()
+        j = self.rect.topleft[0] // BLOCK_SIZE
+        i = self.rect.topleft[1] // BLOCK_SIZE
+        if 0 > i or i >= DIMENSION_X or 0 > j or j >= DIMENSION_Y:
+            return
+        want_i, want_j = self.sprite_to_coordinates()
+        direction = self.a_star(want_i, want_j)
+        if direction == "left":
+            self.change_x = -4
+            self.change_y = 0
+        elif direction == "right":
+            self.change_x = 4
+            self.change_y = 0
+        elif direction == "up":
+            self.change_x = 0
+            self.change_y = -4
+        elif direction == "down":
+            self.change_x = 0
+            self.change_y = 4
 
-    def move_left(self):
-        self.change_x = -3
+    def change_want_coin(self):
+        self.want_coin = choice(self.dots_group.sprites())
 
-    def move_up(self):
-        self.change_y = -3
+    def sprite_to_coordinates(self):
+        return (self.want_coin.rect.topleft[1] - 12) // BLOCK_SIZE, (self.want_coin.rect.topleft[0] - 12) // BLOCK_SIZE
 
-    def move_down(self):
-        self.change_y = 3
+    def a_star(self, want_i, want_j):
+        j = self.rect.topleft[0] // BLOCK_SIZE
+        i = self.rect.topleft[1] // BLOCK_SIZE
+        visited = {(i, j)}
+        prices = dict()
 
-    def stop_move_horizontal(self):
-        self.change_x = 0
+        for node_to_visit_i, node_to_visit_j, direction in get_available_directions_coordinates(self.grid, i, j):
+            prices[(node_to_visit_i, node_to_visit_j)] = [
+                1 + heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j), direction]
 
-    def stop_move_vertical(self):
-        self.change_y = 0
+        while len(prices) != 0:
+            cheapest_node = list(prices.keys())[0]
+            cheapest_price = prices[cheapest_node][0]
+
+            for key, value in prices.items():
+                if value[0] < cheapest_price:
+                    cheapest_price = value[0]
+                    cheapest_node = key
+
+            visit_i, visit_j = cheapest_node
+            direction = prices[cheapest_node][1]
+            del prices[cheapest_node]
+            cheapest_price -= heuristic(visit_i, visit_j, want_i, want_j)
+
+            if not (visit_i, visit_j) in visited:
+                visited.add((visit_i, visit_j))
+                if visit_i == want_i and visit_j == want_j:
+                    return direction
+                for node_to_visit_i, node_to_visit_j, _ in get_available_directions_coordinates(self.grid, visit_i,
+                                                                                                visit_j):
+                    if (node_to_visit_i, node_to_visit_j) not in visited and (
+                            (node_to_visit_i, node_to_visit_j) not in prices or
+                            prices[(node_to_visit_i, node_to_visit_j)][0] > cheapest_price + 1 +
+                            heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j)):
+                        prices[(node_to_visit_i, node_to_visit_j)] = [
+                            cheapest_price + 1 + heuristic(node_to_visit_i, node_to_visit_j, want_i, want_j), direction]
+
+
+def heuristic(x, y, aim_x, aim_y):
+    # TODO: count_enemies
+    return 1 * (abs(x - aim_x) + abs(y - aim_y))
+
+
+def get_available_directions_coordinates(grid, i, j):
+    dimension_x = len(grid)
+    dimension_y = len(grid[0])
+    coordinates_list = [[(i + 1) % dimension_x, j, 'down'], [(i - 1) % dimension_x, j, 'up'],
+                        [i, (j + 1) % dimension_y, 'right'],
+                        [i, (j - 1) % dimension_y, 'left']]
+    result = []
+    for coordinates in coordinates_list:
+        if grid[coordinates[0]][coordinates[1]] != 0:
+            result.append(coordinates)
+
+    return result
 
 
 class Animation(object):

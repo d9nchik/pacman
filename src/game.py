@@ -32,7 +32,6 @@ class Game(object):
         self.level = 1
         self.grid = generate_environment()
 
-        self.player = Player(self.grid)
         # paths blocks
         self.empty_blocks = pygame.sprite.Group()
         self.non_empty_blocks = pygame.sprite.Group()
@@ -49,6 +48,8 @@ class Game(object):
                               HALF_BLOCK_SIZE, HALF_BLOCK_SIZE))
                     self.dots_group.add(Ellipse(j * BLOCK_SIZE + 12, i * BLOCK_SIZE + 12, WHITE, QUARTER_BLOCK_SIZE,
                                                 QUARTER_BLOCK_SIZE))
+
+        self.player = Player(self.grid, self.dots_group)
 
         block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
@@ -100,7 +101,7 @@ class Game(object):
 
     def decrease_life_level(self):
         self.life -= 1
-        self.player = Player(self.grid)
+        self.player = Player(self.grid, self.dots_group)
         self.hurt.play()
 
     def increase_level(self):
@@ -123,3 +124,4 @@ class Game(object):
                                 WHITE)
         # put text on screen
         screen.blit(text, [120, 20])
+        pygame.draw.ellipse(screen, RED, self.player.want_coin.rect)
