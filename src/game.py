@@ -123,8 +123,3 @@ class Game(object):
                                 WHITE)
         # put text on screen
         screen.blit(text, [120, 20])
-
-        # show fractal seconds
-        screen.blit(self.font.render("UCS: {:5f}".format(self.blinky.time), True, WHITE), [SCREEN_WIDTH - 200, 20])
-        screen.blit(self.font.render("BFS: {:5f}".format(self.clyde.time), True, WHITE), [SCREEN_WIDTH - 200, 40])
-        screen.blit(self.font.render("DFS: {:5f}".format(self.inky.time), True, WHITE), [SCREEN_WIDTH - 200, 60])
