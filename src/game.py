@@ -76,7 +76,7 @@ class Game(object):
             else:
                 block_hit_list = pygame.sprite.spritecollide(self.player, self.enemies, True)
                 if len(block_hit_list) > 0:
-                    self.life -= 1
+                    self.life = 0
                     self.player.explosion = True
                     self.game_over_sound.play()
             self.game_over = self.player.game_over

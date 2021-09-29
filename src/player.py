@@ -145,8 +145,8 @@ class Player(pygame.sprite.Sprite, Entity):
     def enemies_heuristic(self, x, y):
         h = 0
         for sprite in self.enemies.sprites():
-            h += 118 / (1 + pacman_distance(sprite.rect.topleft[1] // BLOCK_SIZE, x, DIMENSION_X) + pacman_distance(
-                sprite.rect.topleft[0] // BLOCK_SIZE, y, DIMENSION_Y))
+            h += ENEMIES_HEURISTIC_CONSTANT / (1 + pacman_distance(sprite.rect.topleft[1] // BLOCK_SIZE, x, DIMENSION_X)
+                                               + pacman_distance(sprite.rect.topleft[0] // BLOCK_SIZE, y, DIMENSION_Y))
         return h
 
 
