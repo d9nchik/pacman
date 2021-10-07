@@ -3,7 +3,7 @@ import pygame.mixer
 from src.enemies import Blinky, Inky, Pinky, Clyde
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
-from src.player import Player
+from src.player import Player, ExpectPacman
 from src.settings import *
 
 pygame.mixer.init()
@@ -50,7 +50,7 @@ class Game(object):
                                                 QUARTER_BLOCK_SIZE))
 
         self.enemies = pygame.sprite.Group()
-        self.player = Player(self.grid, self.dots_group, self.enemies)
+        self.player = ExpectPacman(self.grid, self.dots_group, self.enemies)
 
         block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)

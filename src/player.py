@@ -3,6 +3,7 @@ from copy import copy
 import pygame
 from pygame.sprite import Group
 
+from src.enemies import Pinky
 from src.entity import Entity
 from src.settings import *
 
@@ -34,6 +35,7 @@ class Player(pygame.sprite.Sprite, Entity):
 
         self.dots_group = dots_group
         self.enemies = enemies
+        self.min_algorithm = self.min_turn
 
     def update(self, empty_blocks):
         if not self.explosion:
@@ -108,14 +110,15 @@ class Player(pygame.sprite.Sprite, Entity):
         for direction_i, direction_j, direction in all_directions:
             self.enemies.sprites()
             new_enemies = list(map(lambda enemy: copy(enemy), self.enemies.sprites()))
-            visited = {(i, j)}
             count = 0
             available_coins = list(all_coins)
             if (direction_i, direction_j) in available_coins:
                 available_coins.remove((direction_i, direction_j))
-                count += 1
-            result = self.min_turn(direction_i, direction_j, count, all_coins, v, betta, recursion_index - 1, (i, j),
-                                   new_enemies)
+                count += 10
+            count += 1
+            result = self.min_algorithm(direction_i, direction_j, count, all_coins, v, betta, recursion_index - 1,
+                                        (i, j),
+                                        new_enemies)
             if result >= v:
                 v = result
                 best_direction = direction
@@ -148,8 +151,8 @@ class Player(pygame.sprite.Sprite, Entity):
             if (direction_i, direction_j) in available_coins:
                 available_coins.remove((direction_i, direction_j))
                 new_score += 1
-            result = self.min_turn(direction_i, direction_j, new_score, available_coins, max(alfa, v), betta,
-                                   recursion_index - 1, (i, j), enemies)
+            result = self.min_algorithm(direction_i, direction_j, new_score, available_coins, max(alfa, v), betta,
+                                        recursion_index - 1, (i, j), enemies)
             if result > v:
                 v = result
                 if v > betta:
@@ -165,9 +168,10 @@ class Player(pygame.sprite.Sprite, Entity):
             new_score = score
             if (direction_i, direction_j) in available_coins:
                 available_coins.remove((direction_i, direction_j))
-                new_score += 1
-            result = self.min_turn(direction_i, direction_j, new_score, available_coins, max(alfa, v), betta,
-                                   recursion_index - 1, (i, j), enemies)
+                new_score += 10
+            new_score += 1
+            result = self.min_algorithm(direction_i, direction_j, new_score, available_coins, max(alfa, v), betta,
+                                        recursion_index - 1, (i, j), enemies)
             if result > v:
                 v = result
                 if v > betta:
@@ -189,15 +193,32 @@ class Player(pygame.sprite.Sprite, Entity):
 
         return self.max_turn(i, j, score, dots, alfa, betta, recursion_index, previous, new_enemies)
 
+    def expect_turn(self, i, j, score, dots, alfa, betta, recursion_index, previous, enemies) -> float:
+        new_enemies = list(map(lambda enemy: copy(enemy), enemies))
+
+        x_dimension = len(self.grid)
+        y_dimension = len(self.grid[0])
+
+        for enemy in new_enemies:
+            enemy.rect = enemy.rect.copy()
+            enemy.update(i, j)
+            enemy_i, enemy_j = enemy.get_coordinates()
+            if pacman_distance(i, enemy_i, x_dimension) + pacman_distance(j, enemy_j, y_dimension) < 3 \
+                    and not isinstance(enemy, Pinky):
+                return float('-inf')
+
+        for enemy in new_enemies:
+            enemy_i, enemy_j = enemy.get_coordinates()
+            if pacman_distance(i, enemy_i, x_dimension) + pacman_distance(j, enemy_j, y_dimension) < 3:
+                return 1 / 3 * self.max_turn(i, j, score, dots, alfa, betta, recursion_index, previous, new_enemies)
+
+        return self.max_turn(i, j, score, dots, alfa, betta, recursion_index, previous, new_enemies)
+
 
 def pacman_distance(x1, x2, dimension):
     if x1 > x2:
         x1, x2 = x2, x1
     return min(x2 - x1, x1 + dimension - x2)
-
-
-def heuristic(x, y, aim_x, aim_y):
-    return 1 * (pacman_distance(x, aim_x, DIMENSION_X) + pacman_distance(y, aim_y, DIMENSION_Y))
 
 
 def get_available_directions_coordinates(grid, i, j):
@@ -255,3 +276,9 @@ class Animation(object):
         if self.clock in range(1, fps, 8):
             self.index += 1
             self.index %= self.get_length()
+
+
+class ExpectPacman(Player):
+    def __init__(self, grid, dots_group: Group, enemies: Group):
+        super().__init__(grid, dots_group, enemies)
+        self.min_algorithm = self.expect_turn
