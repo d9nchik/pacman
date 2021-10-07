@@ -64,8 +64,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
         return items
 
     def breadth_first_search(self, want_i, want_j):
-        j = self.rect.topleft[0] // BLOCK_SIZE
-        i = self.rect.topleft[1] // BLOCK_SIZE
+        i, j = self.get_coordinates()
         visited = {(i, j)}
         next_nodes_to_visit = get_available_directions_coordinates(self.grid, i, j)
         while len(next_nodes_to_visit) != 0:
@@ -84,8 +83,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
                                                                  node_to_visit_j)))
 
     def deep_first_search(self, want_i, want_j):
-        j = self.rect.topleft[0] // BLOCK_SIZE
-        i = self.rect.topleft[1] // BLOCK_SIZE
+        i, j = self.get_coordinates()
         visited = {(i, j)}
         next_nodes_to_visit = get_available_directions_coordinates(self.grid, i, j)
         while len(next_nodes_to_visit) != 0:
@@ -104,8 +102,7 @@ class Spirit(pygame.sprite.Sprite, Entity):
                 next_nodes_to_visit = next_nodes_to_visit[:-1]
 
     def uniform_cost_search(self, want_i, want_j):
-        j = self.rect.topleft[0] // BLOCK_SIZE
-        i = self.rect.topleft[1] // BLOCK_SIZE
+        i, j = self.get_coordinates()
         visited = {(i, j)}
         prices = dict()
 
@@ -136,17 +133,22 @@ class Spirit(pygame.sprite.Sprite, Entity):
                         prices[(node_to_visit_i, node_to_visit_j)] = [cheapest_price + 1, direction]
 
     def random_search(self, want_i, want_j):
+        i, j = self.get_coordinates()
+        return random.choice(get_available_directions(self.grid, i, j))
+
+    def get_coordinates(self):
         j = self.rect.topleft[0] // BLOCK_SIZE
         i = self.rect.topleft[1] // BLOCK_SIZE
-        return random.choice(get_available_directions(self.grid, i, j))
+        return i, j
 
 
 def get_available_directions_coordinates(grid, i, j):
     dimension_x = len(grid)
     dimension_y = len(grid[0])
-    coordinates_list = [[(i + 1) % dimension_x, j, 'down'], [(i - 1) % dimension_x, j, 'up'],
-                        [i, (j + 1) % dimension_y, 'right'],
-                        [i, (j - 1) % dimension_y, 'left']]
+    coordinates_list = [[(i + 1) % dimension_x, j % dimension_y, 'down'],
+                        [(i - 1) % dimension_x, j % dimension_y, 'up'],
+                        [i % dimension_x, (j + 1) % dimension_y, 'right'],
+                        [i % dimension_x, (j - 1) % dimension_y, 'left']]
     result = []
     for coordinates in coordinates_list:
         if grid[coordinates[0]][coordinates[1]] != 0:
@@ -159,13 +161,13 @@ def get_available_directions(grid, i, j) -> [str]:
     dimension_x = len(grid)
     dimension_y = len(grid[0])
     directions = []
-    if grid[(i + 1) % dimension_x][j] != 0:
+    if grid[(i + 1) % dimension_x][j % dimension_y] != 0:
         directions.append('down')
-    if grid[(i - 1) % dimension_x][j] != 0:
+    if grid[(i - 1) % dimension_x][j % dimension_y] != 0:
         directions.append('up')
-    if grid[i][(j + 1) % dimension_y] != 0:
+    if grid[i % dimension_x][(j + 1) % dimension_y] != 0:
         directions.append('right')
-    if grid[i][(j - 1) % dimension_y] != 0:
+    if grid[i % dimension_x][(j - 1) % dimension_y] != 0:
         directions.append('left')
     return directions
 

@@ -120,8 +120,6 @@ class Game(object):
         self.enemies.draw(screen)
         screen.blit(self.player.image, self.player.rect)
         # Render the text for the score
-        text = self.font.render("Score: {}; Level: {}: HP: {}".format(self.score, self.level, self.life), True,
-                                WHITE)
+        text = self.font.render("Score: {}; Level: {}: HP: {}".format(self.score, self.level, self.life), True, WHITE)
         # put text on screen
         screen.blit(text, [120, 20])
-        pygame.draw.ellipse(screen, RED, self.player.want_coin.rect)
