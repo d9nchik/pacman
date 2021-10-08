@@ -1,3 +1,5 @@
+import argparse
+
 import pygame.mixer
 
 from src.game import Game
@@ -6,8 +8,30 @@ from src.records import Records
 from src.settings import *
 
 
-class GameWindow(object):
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        usage="%(prog)s [-v=2] [-c=2] [-s=mini]",
+        description="Pacman AI simulator"
+    )
+    parser.add_argument("-v", "--version", action="version", version=f"{parser.prog} version 1.0.0")
+
+    parser.add_argument('-c', '--clever_enemies', type=int, dest="clever_enemies", default=2,
+                        help='provide an integer (default: 2)')
+    parser.add_argument('-d', '--dum_enemies', type=int, dest="dum_enemies", default=2,
+                        help='provide an integer (default: 2)')
+    parser.add_argument('-s', '--strategy', dest="strategy", choices=['mini', 'expecti'], default='mini',
+                        help='provide string value  (default: mini)')
+    return parser
+
+
+class GameWindow:
     def __init__(self, screen):
+        parser = init_argparse()
+        args = parser.parse_args()
+        self.strategy = args.strategy
+        self.dum_enemies = args.dum_enemies
+        self.clever_enemies = args.clever_enemies
+
         self.screen = screen
 
         self.records_page = False
@@ -15,7 +39,7 @@ class GameWindow(object):
         self.font = pygame.font.Font(None, 35)
 
         self.records = Records(RECORDS_PATH)
-        self.game = Game(self.records)
+        self.game = Game(self.records, self.clever_enemies, self.dum_enemies, self.strategy)
 
         self.menu = Menu(("Start", "Records", "Exit"), font_color=WHITE, font_size=60)
 
@@ -29,7 +53,7 @@ class GameWindow(object):
                     if self.game.game_over and not self.records_page:
                         if self.menu.state == 0:
                             # start
-                            self.game = Game(self.records)
+                            self.game = Game(self.records, self.clever_enemies, self.dum_enemies, self.strategy)
                             self.game.game_over = False
                         elif self.menu.state == 1:
                             # records

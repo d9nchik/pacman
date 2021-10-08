@@ -1,6 +1,6 @@
 import pygame.mixer
 
-from src.enemies import Blinky, Inky, Pinky, Clyde
+from src.enemies import Inky, Pinky
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.player import Player, ExpectPacman
@@ -19,7 +19,7 @@ class Game(object):
     hurt = pygame.mixer.Sound('./src/sounds/hurt.wav')
     upgrade = pygame.mixer.Sound('./src/sounds/upgrade.wav')
 
-    def __init__(self, records):
+    def __init__(self, records, clever_enemies=2, dum_enemies=2, strategy='mini'):
         self.records = records
 
         self.game_over = True
@@ -50,17 +50,17 @@ class Game(object):
                                                 QUARTER_BLOCK_SIZE))
 
         self.enemies = pygame.sprite.Group()
-        self.player = ExpectPacman(self.grid, self.dots_group, self.enemies)
+        self.player = Player(self.grid, self.dots_group, self.enemies) if strategy == 'mini' \
+            else ExpectPacman(self.grid, self.dots_group, self.enemies)
 
         block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
         self.player_j = int((block.rect.x - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
 
-        self.blinky = Blinky(self.grid, self.player_i, self.player_j)
-        self.clyde = Clyde(self.grid, self.player_i, self.player_j)
-        self.inky = Inky(self.grid, self.player_i, self.player_j)
-        self.pinky = Pinky(self.grid, self.player_i, self.player_j)
-        self.enemies.add(self.blinky, self.clyde, self.inky, self.pinky)
+        for x in range(clever_enemies):
+            self.enemies.add(Inky(self.grid, self.player_i, self.player_j))
+        for x in range(dum_enemies):
+            self.enemies.add(Pinky(self.grid, self.player_i, self.player_j))
 
     def run_logic(self):
         if not self.game_over:
