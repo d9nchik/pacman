@@ -38,7 +38,7 @@ class GameWindow:
         # font for score on the screen
         self.font = pygame.font.Font(None, 35)
 
-        self.records = Records(RECORDS_PATH)
+        self.records = Records(RECORDS_PATH, self.clever_enemies, self.dum_enemies, self.strategy)
         self.game = Game(self.records, self.clever_enemies, self.dum_enemies, self.strategy)
 
         self.menu = Menu(("Start", "Records", "Exit"), font_color=WHITE, font_size=60)
@@ -66,7 +66,7 @@ class GameWindow:
                     if self.game.game_over:
                         self.game.score = 0
                     else:
-                        self.records.add_score(self.game.score)
+                        self.records.add_score(self.game.score, False)
                     self.game.game_over = True
                     self.records_page = False
 

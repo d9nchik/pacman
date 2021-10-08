@@ -97,7 +97,7 @@ class Game(object):
                 self.win = True
                 self.win_sound.play()
             if self.game_over:
-                self.records.add_score(self.score)
+                self.records.add_score(self.score, self.win)
 
     def decrease_life_level(self):
         self.life -= 1
