@@ -1,3 +1,5 @@
+from timeit import default_timer as timer
+
 import pygame.mixer
 
 from src.enemies import Inky, Pinky
@@ -36,6 +38,7 @@ class Game(object):
         self.empty_blocks = pygame.sprite.Group()
         self.non_empty_blocks = pygame.sprite.Group()
         self.dots_group = pygame.sprite.Group()
+        self.start = timer()
 
         for i, row in enumerate(self.grid):
             for j, item in enumerate(row):
@@ -97,7 +100,9 @@ class Game(object):
                 self.win = True
                 self.win_sound.play()
             if self.game_over:
-                self.records.add_score(self.score, self.win)
+                end = timer()
+                time = round(end - self.start, 3)
+                self.records.add_score(self.score, self.win, time)
 
     def decrease_life_level(self):
         self.life -= 1

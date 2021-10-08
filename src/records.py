@@ -20,19 +20,16 @@ class Records:
         with open(self.records_file) as f:
             self.records = list(csv.reader(f))
 
-    def write_scores(self) -> None:
-        with open(self.records_file, 'w') as f:
+    def write_scores(self, row) -> None:
+        with open(self.records_file, 'a') as f:
             writer = csv.writer(f)
-            for record in self.records:
-                writer.writerow(record)
-            # for record in self.records[:-1]:
-            #     print(record, file=f)
-            # print(self.records[-1], file=f, end='')
+            writer.writerow(row)
 
     def get_scores(self):
         return tuple(self.records)
 
     def add_score(self, score: int, win: bool = False, time: int = 0) -> None:
-        self.records.append([score, win, self.clever_enemies, self.dum_enemies, self.strategy, time])
+        row = [score, win, self.clever_enemies, self.dum_enemies, self.strategy, time]
+        self.records.append(row)
         # self.records = sorted(self.records, key=lambda x: -x[0])[:10]
-        self.write_scores()
+        self.write_scores(row)

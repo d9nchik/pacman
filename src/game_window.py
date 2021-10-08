@@ -65,8 +65,6 @@ class GameWindow:
                 elif event.key == pygame.K_ESCAPE:
                     if self.game.game_over:
                         self.game.score = 0
-                    else:
-                        self.records.add_score(self.game.score, False)
                     self.game.game_over = True
                     self.records_page = False
 
