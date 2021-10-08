@@ -24,7 +24,7 @@ class Game(object):
     def __init__(self, records, clever_enemies=2, dum_enemies=2, strategy='mini'):
         self.records = records
 
-        self.game_over = True
+        self.game_over = False
         self.win = False
         self.life = MAX_LIFE_LEVEL
         # font for score on the screen
