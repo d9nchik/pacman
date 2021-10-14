@@ -169,7 +169,6 @@ class Player(pygame.sprite.Sprite, Entity):
             if (direction_i, direction_j) in available_coins:
                 available_coins.remove((direction_i, direction_j))
                 new_score += 10
-            new_score += 1
             result = self.min_algorithm(direction_i, direction_j, new_score, available_coins, max(alfa, v), betta,
                                         recursion_index - 1, (i, j), enemies)
             if result > v:
