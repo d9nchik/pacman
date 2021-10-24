@@ -113,7 +113,9 @@ class Game(object):
         level = self.level + 1
         score = self.score
         life = self.life
+        start = self.start
         self.__init__(self.records)
+        self.start = start
         self.level = level
         self.life = life
         self.score = score

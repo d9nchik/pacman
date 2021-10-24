@@ -108,10 +108,11 @@ class Player(pygame.sprite.Sprite, Entity):
         all_directions = get_available_directions_coordinates(grid, i, j)
 
         for direction_i, direction_j, direction in all_directions:
-            self.enemies.sprites()
             new_enemies = list(map(lambda enemy: copy(enemy), self.enemies.sprites()))
             count = 0
             available_coins = list(all_coins)
+            if len(available_coins) == 0:
+                return float('+inf')
             if (direction_i, direction_j) in available_coins:
                 available_coins.remove((direction_i, direction_j))
                 count += 10
@@ -128,12 +129,6 @@ class Player(pygame.sprite.Sprite, Entity):
         return tuple(map(lambda topleft: ((topleft[1] - 12) // BLOCK_SIZE, (topleft[0] - 12) // BLOCK_SIZE),
                          map(lambda coin: coin.rect.topleft, self.dots_group.sprites())))
 
-    def enemies_heuristic(self, x, y):
-        h = 0
-        for sprite in self.enemies.sprites():
-            h += ENEMIES_HEURISTIC_CONSTANT / (1 + pacman_distance(sprite.rect.topleft[1] // BLOCK_SIZE, x, DIMENSION_X)
-                                               + pacman_distance(sprite.rect.topleft[0] // BLOCK_SIZE, y, DIMENSION_Y))
-        return h
 
     def max_turn(self, i, j, score, dots, alfa, betta, recursion_index, previous, enemies) -> float:
         if recursion_index == 0:
