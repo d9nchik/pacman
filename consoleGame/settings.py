@@ -1,0 +1,19 @@
+# matrix generator
+DIMENSION_X = 28
+DIMENSION_Y = 50
+
+# colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
+MAX_LEVEL = 1
+MAX_LIFE_LEVEL = 3
+
+RECORDS_PATH = 'records.csv'
+GRID_FILE = 'grid.txt'
+
+ENEMIES_HEURISTIC_CONSTANT = 20
+MAX_ALFA_BETTA_RECURSION = 18
