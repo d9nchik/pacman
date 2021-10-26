@@ -9,6 +9,8 @@
 ; (ql:quickload "cl-csv")
 ; (ql:quickload "iterate")
 
+(defvar maxScore 290)
+
 ;; read a file into a list of lists
 (defvar data
   (cl-csv:read-csv #P"consoleGame/records.csv")
@@ -30,7 +32,6 @@
   (* x x)
 )
 
-(write workData)
 ; scoreMean is float
 (defvar scoreMean (average (map 'list
                               (lambda (it) (car it))
@@ -41,8 +42,6 @@
                                 (lambda (it) (cadr it))
                                 workdata
                            )))
-
-(print workdata)
 
 ; numerat += (X[i] - x_mean) * (Y[i] - y_mean)
 (defvar numerat (apply '+
@@ -56,15 +55,15 @@
                                       (square (- (cadr it) enemiesmean))
                                     ) workdata
                          )))
-(print denominat)
-(print numerat)
+(print(format NIL "Denominator: ~F" denominat))
+(print (format NIL "Numerator: ~F" numerat))
 ; b1 = numerat / denominat
 (defvar b1 (/ numerat denominat))
-(print b1)
+(print (format NIL "b1=~F" b1))
 ; b0 = y_mean - (b1 * x_mean)
 (defvar b0 (- scoremean (* b1 enemiesmean)))
-(print b0)
-
+(print (format NIL "b0=~F" b0))
+(print (format NIL "Score = ~F*enemies + ~F" b1 b0))
 (defun getScoreByEnemiesNumber (enemies)
   (+ b0 (* b1 enemies))
 )
@@ -75,6 +74,7 @@
                               ))
                     (length workdata
                  ))))
+(print (format NIL "RMSE = ~F" rmse))
 (defvar sumOfSquares (apply '+ (map 'list (lambda (it)
                                           (square (- (car it) scoremean))
                                         ) workdata
@@ -84,10 +84,10 @@
                                           ) workdata
                                )))
 (defvar R2 (- 1 (/ sumofresiduals sumofsquares)))
-
-(defvar newCsvData (iter (for i from 1 to 10)
-    (collect (list i (getScoreByEnemiesNumber i))))
-)
+(print (format NIL "R^2 = ~F" R2))
+(defvar newCsvData (map 'list (lambda(it) (list (car it) ( if (= maxScore (cadr it)) "True" "False"  ) (cadr it))) (iter (for i from 1 to 10)
+    (collect (list i  (getScoreByEnemiesNumber i))))
+))
 (print newCsvData)
 (terpri)
 (defun export-csv (row-data file)
