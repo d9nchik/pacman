@@ -1,3 +1,4 @@
+#!/usr/bin/sbcl --script
 #-quicklisp
   (let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
                                          (user-homedir-pathname))))
@@ -6,8 +7,6 @@
 
 (require "cl-csv")
 (use-package :iterate)
-; (ql:quickload "cl-csv")
-; (ql:quickload "iterate")
 
 (defvar maxScore 290)
 
