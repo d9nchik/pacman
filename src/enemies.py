@@ -34,25 +34,24 @@ class Spirit(pygame.sprite.Sprite, Entity):
         elif self.rect.top > SCREEN_HEIGHT:
             self.rect.bottom = 0
 
-        if self.rect.topleft in self.intersection_position:
-            self.change_direction(player_i, player_j)
+        self.change_direction(player_i, player_j)
 
     def change_direction(self, player_i, player_j):
 
         # direction = random.choice(self.get_available_directions())
         direction = self.search(player_i, player_j)
         if direction == "left":
-            self.change_x = -2
+            self.change_x = -BLOCK_SIZE
             self.change_y = 0
         elif direction == "right":
-            self.change_x = 2
+            self.change_x = BLOCK_SIZE
             self.change_y = 0
         elif direction == "up":
             self.change_x = 0
-            self.change_y = -2
+            self.change_y = -BLOCK_SIZE
         elif direction == "down":
             self.change_x = 0
-            self.change_y = 2
+            self.change_y = BLOCK_SIZE
 
     def get_intersection_position(self):
         items = set()

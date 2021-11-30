@@ -1,6 +1,6 @@
 # matrix generator
-DIMENSION_X = 28
-DIMENSION_Y = 50
+DIMENSION_X = 20
+DIMENSION_Y = 10
 
 # colors
 BLACK = (0, 0, 0)

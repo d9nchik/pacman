@@ -1,4 +1,4 @@
-import random
+from typing import List
 
 import pygame
 
@@ -23,16 +23,7 @@ def apply_direction_to_grid(grid, x, y, direction):
 
 
 def generate_environment():
-    grid = [[0 for x in range(DIMENSION_Y)] for x in range(DIMENSION_X)]
-    x = random.randint(0, DIMENSION_X - 1)
-    y = random.randint(0, DIMENSION_Y - 1)
-    grid[x][y] = 1
-    direction = random.randint(0, 3)
-    for n in range(0, 500):
-        if n % 5 == 4:
-            direction = random.randint(0, 3)
-        x, y = apply_direction_to_grid(grid, x, y, direction)
-    return grid
+    return read_environment_from_file()
 
 
 def display_row_by_row(grid):
@@ -59,3 +50,17 @@ def draw_environment(screen, grid):
                 if grid[i][(j + 1) % dimension_y] == 0:
                     pygame.draw.line(screen, GREEN, [(j + 1) * BLOCK_SIZE, i * BLOCK_SIZE],
                                      [(j + 1) * BLOCK_SIZE, (i + 1) * BLOCK_SIZE], 3)
+
+
+def print_to_file(grid: List[List[int]]):
+    with open(GRID_FILE, 'w') as f:
+        for row in grid:
+            print(' '.join(map(lambda x: str(x), row)), file=f)
+
+
+def read_environment_from_file() -> List[List[int]]:
+    with open(GRID_FILE) as f:
+        grid = []
+        for row in f:
+            grid.append(list(map(lambda x: int(x), row.split())))
+        return grid

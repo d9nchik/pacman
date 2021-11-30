@@ -15,5 +15,5 @@ if __name__ == '__main__':
         done = game.process_events()
         game.run_logic()
         game.display_frame()
-        clock.tick(30)
+        clock.tick(1)
     pygame.quit()
