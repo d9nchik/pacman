@@ -1,6 +1,6 @@
 import pygame.mixer
 
-from src.enemies import Inky, Pinky
+from src.enemies import Inky
 from src.entity import Block, Ellipse
 from src.environment import generate_environment, draw_environment
 from src.player import Player
@@ -37,16 +37,14 @@ class Game(object):
                                                 QUARTER_BLOCK_SIZE))
 
         self.enemies = pygame.sprite.Group()
-        self.player = Player(self.grid)
+        self.player = Player(self.grid, 7 * BLOCK_SIZE, 14 * BLOCK_SIZE)
 
         block = pygame.sprite.spritecollide(self.player, self.non_empty_blocks, False)[0]
         self.player_i = int((block.rect.y - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
         self.player_j = int((block.rect.x - QUARTER_BLOCK_SIZE) // BLOCK_SIZE)
 
-        for x in range(clever_enemies):
-            self.enemies.add(Inky(self.grid, self.player_i, self.player_j))
-        for x in range(dum_enemies):
-            self.enemies.add(Pinky(self.grid, self.player_i, self.player_j))
+        self.enemies.add(Inky(self.grid, self.player_i, self.player_j, 7 * BLOCK_SIZE, BLOCK_SIZE))
+        self.enemies.add(Inky(self.grid, self.player_i, self.player_j, 2 * BLOCK_SIZE, 22 * BLOCK_SIZE))
 
     def run_logic(self):
         if not self.game_over:
@@ -78,6 +76,3 @@ class Game(object):
         self.enemies.draw(screen)
         screen.blit(self.player.image, self.player.rect)
         # Render the text for the score
-        text = self.font.render("Score: {}".format(self.score), True, RED)
-        # put text on screen
-        screen.blit(text, [120, 0])

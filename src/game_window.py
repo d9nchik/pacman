@@ -85,3 +85,17 @@ class GameWindow:
         for label in list_of_labels:
             self.screen.blit(label, (pos_x, pos_y))
             pos_y += height
+
+    def step(self, action_number: int):
+        if action_number == 1:
+            self.game.player.move_down()
+        elif action_number == 2:
+            self.game.player.move_up()
+        elif action_number == 3:
+            self.game.player.move_left()
+        elif action_number == 4:
+            self.game.player.move_right()
+
+    def reset(self):
+        self.game.__init__()
+        self.game = Game(self.clever_enemies, self.dum_enemies)

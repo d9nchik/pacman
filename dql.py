@@ -3,20 +3,33 @@ import random
 from collections import namedtuple, deque
 from itertools import count
 
-import gym
 import matplotlib.pyplot as plt
 import numpy as np
+import pygame
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torchvision.transforms as T
 from PIL import Image
+from pygame.surfarray import array3d
 
-env = gym.make('CartPole-v0').unwrapped
+from src.game_window import GameWindow
+from src.settings import *
 
 plt.ion()
 
+pygame.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("PACMAN - FOR LIFE EDITION")
+clock = pygame.time.Clock()
+game = GameWindow(screen)
+
+# while not done:
+done = game.process_events()
+game.run_logic()
+game.display_frame()
+clock.tick(1)
 # if gpu is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -76,39 +89,21 @@ resize = T.Compose([T.ToPILImage(),
                     T.ToTensor()])
 
 
-def get_cart_location(screen_width):
-    world_width = env.x_threshold * 2
-    scale = screen_width / world_width
-    return int(env.state[0] * scale + screen_width / 2.0)  # MIDDLE OF CART
-
-
 def get_screen():
     # Returned screen requested by gym is 400x600x3, but is sometimes larger
     # such as 800x1200x3. Transpose it into torch order (CHW).
-    screen = env.render(mode='rgb_array').transpose((2, 0, 1))
+    screen1 = array3d(screen).transpose((2, 0, 1))
     # Cart is in the lower half, so strip off the top and bottom of the screen
-    _, screen_height, screen_width = screen.shape
-    screen = screen[:, int(screen_height * 0.4):int(screen_height * 0.8)]
-    view_width = int(screen_width * 0.6)
-    cart_location = get_cart_location(screen_width)
-    if cart_location < view_width // 2:
-        slice_range = slice(view_width)
-    elif cart_location > (screen_width - view_width // 2):
-        slice_range = slice(-view_width, None)
-    else:
-        slice_range = slice(cart_location - view_width // 2,
-                            cart_location + view_width // 2)
-    # Strip off the edges, so that we have a square image centered on a cart
-    screen = screen[:, :, slice_range]
+    # _, screen_height, screen_width = screen1.shape
+    # screen1 = screen1[:, int(screen_height * 0.4):int(screen_height * 0.8)]
     # Convert to float, rescale, convert to torch tensor
     # (this doesn't require a copy)
-    screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
-    screen = torch.from_numpy(screen)
+    screen1 = np.ascontiguousarray(screen1, dtype=np.float32) / 255
+    screen1 = torch.from_numpy(screen1)
     # Resize, and add a batch dimension (BCHW)
-    return resize(screen).unsqueeze(0)
+    return resize(screen1).unsqueeze(0)
 
 
-env.reset()
 plt.figure()
 plt.imshow(get_screen().cpu().squeeze(0).permute(1, 2, 0).numpy(),
            interpolation='none')
@@ -129,7 +124,7 @@ init_screen = get_screen()
 _, _, screen_height, screen_width = init_screen.shape
 
 # Get number of actions from gym action space
-n_actions = env.action_space.n
+n_actions = 4
 
 policy_net = DQN(screen_height, screen_width, n_actions).to(device)
 target_net = DQN(screen_height, screen_width, n_actions).to(device)
@@ -230,14 +225,21 @@ def optimize_model():
 num_episodes = 50
 for i_episode in range(num_episodes):
     # Initialize the environment and state
-    env.reset()
+    game.reset()
     last_screen = get_screen()
     current_screen = get_screen()
     state = current_screen - last_screen
     for t in count():
         # Select and perform an action
+        previous_score = game.game.score
         action = select_action(state)
-        _, reward, done, _ = env.step(action.item())
+        game.step(action.item())
+        game.process_events()
+        done = game.game.game_over
+        game.run_logic()
+        game.display_frame()
+        reward = game.game.score - previous_score
+        # clock.tick(1)
         reward = torch.tensor([reward], device=device)
 
         # Observe new state
@@ -265,7 +267,5 @@ for i_episode in range(num_episodes):
         target_net.load_state_dict(policy_net.state_dict())
 
 print('Complete')
-env.render()
-env.close()
 plt.ioff()
 plt.show()
